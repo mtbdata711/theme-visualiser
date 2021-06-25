@@ -6,7 +6,7 @@ export default function App() {
 	return (
 		<main>
 			<h1>UAL Theme Visualiser</h1>
-			<NetworkGraph width={500} height={500} data={{ nodes: themes, links }} />
+			<NetworkGraph width={860} height={500} data={{ nodes: themes, links }} />
 		</main>
 	)
 }
