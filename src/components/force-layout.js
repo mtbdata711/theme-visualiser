@@ -2,49 +2,41 @@ import React from "react"
 import * as d3 from "d3"
 
 import styles from "./force-layout.module.css"
-
-function reducer(ids, action) {
-	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
-	const idx = ids.indexOf(action.id)
-
-	switch (type) {
-		case "ADD":
-			return [...ids, action.id]
-		case "REMOVE":
-			return [...ids.slice(0, idx), ...ids.slice(idx + 1)]
-		default:
-			throw new Error()
-	}
-}
+import { reducer, truncate, formatWeight, formatFontSize } from "./helpers"
 
 export default function ForceLayout(props) {
 	const { width, height, data } = props
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
 
-	const formatWeight = (weight) => (width * 10) / weight
+	var links = [
+		{ source: 1, target: 2 },
+		{ source: 1, target: 3 },
+		{ source: 2, target: 3 },
+	]
 
 	React.useEffect(() => {
 		const lines = d3
 			.select("svg")
 			.selectAll("line")
-			.data(data.links)
+			.data(links)
 			.enter()
 			.append("line")
-			.style("stroke", "#aaa")
+			.style("stroke", "#000")
 
-		d3.forceSimulation(data.nodes)
-			.force("charge", d3.forceManyBody().strength(-20))
+		const simulation = d3
+			.forceSimulation(data.nodes)
+			.force("charge", d3.forceManyBody().strength(10))
 			.force("center", d3.forceCenter(width / 2, height / 2))
 			.force(
 				"collision",
-				d3.forceCollide().radius((d) => formatWeight(d.weight) + 15)
+				d3.forceCollide().radius((d) => formatWeight(d.weight, width) + 10)
 			)
 			.force(
 				"link",
 				d3
 					.forceLink()
 					.id((d) => d.id)
-					.links(data.links)
+					.links(links)
 			)
 			.on("tick", () => {
 				const nodes = d3
@@ -59,8 +51,29 @@ export default function ForceLayout(props) {
 					.attr("id", (d) => d.id)
 					.on("click", function (event) {
 						dispatch({ id: Number(event.target.id) })
-						console.log(this)
+
+						d3.select(this)
+							.select("circle")
+							.attr("fill", activeNodes.includes(this.id) ? "blue" : "red")
 					})
+					.call(
+						d3
+							.drag()
+							.on("start", (event) => {
+								if (!event.active) simulation.alphaTarget(0.3).restart()
+								event.subject.fx = event.subject.x
+								event.subject.fy = event.subject.y
+							})
+							.on("drag", (event) => {
+								event.subject.fx = event.x
+								event.subject.fy = event.y
+							})
+							.on("end", (event) => {
+								if (!event.active) simulation.alphaTarget(0)
+								event.subject.fx = null
+								event.subject.fy = null
+							})
+					)
 
 				lines
 					.attr("x1", (d) => d.source.x)
@@ -70,19 +83,24 @@ export default function ForceLayout(props) {
 
 				group
 					.append("circle")
-					.attr("r", (d) => formatWeight(d.weight))
+					.attr("r", (d) => formatWeight(d.weight, width))
 					.attr("id", (d) => d.id)
 					.attr("fill", "blue")
-					.attr("stroke", "black")
-				// .on("mouseover", (event) => console.log(event))
-				// .on("mouseout", (event) => console.log(event))
+				// .on("mouseover", (event) => showTooltip)
+				// .on("mouseout", (event) => hideTooltip)
 
 				group
 					.append("text")
+					.style(
+						"font",
+						(d) =>
+							`${formatFontSize(formatWeight(d.weight, width))}px sans-serif`
+					)
 					.attr("dx", 0)
-					.attr("dy", (d) => formatWeight(d.weight) + 20)
+					.attr("fill", "white")
 					.attr("text-anchor", "middle")
-					.text((d) => d.title)
+					.attr("dominant-baseline", "middle")
+					.text((d) => truncate(d.title, formatWeight(d.weight, width)))
 			})
 	}, [data, width, height])
 
