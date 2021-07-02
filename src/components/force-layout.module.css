@@ -1,5 +1,6 @@
-/* .wrapper {
-} */
+.wrapper {
+	border: 1px solid white;
+}
 
 .wrapper svg g:hover {
 	cursor: grab;
@@ -8,3 +9,14 @@
 .wrapper svg g:active {
 	cursor: grabbing;
 }
+
+.group {
+	border: 1px solid red;
+}
+
+.circle {
+}
+
+/* .label {
+	color: red;
+} */

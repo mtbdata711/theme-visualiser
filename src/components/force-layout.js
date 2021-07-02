@@ -3,25 +3,25 @@ import * as d3 from "d3"
 
 import styles from "./force-layout.module.css"
 import { reducer, truncate, formatWeight, formatFontSize } from "./helpers"
+import { colours } from "../styles/index"
 
 export default function ForceLayout(props) {
 	const { width, height, data } = props
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
+	// const [state, setState] = React.useState(new Object())
 
-	var links = [
-		{ source: 1, target: 2 },
-		{ source: 1, target: 3 },
-		{ source: 2, target: 3 },
-	]
+	// console.log(state)
 
 	React.useEffect(() => {
-		const lines = d3
+		const link = d3
 			.select("svg")
 			.selectAll("line")
-			.data(links)
+			.data(data.links)
 			.enter()
 			.append("line")
-			.style("stroke", "#000")
+		// .style("stroke", "#000")
+		// .attr("stroke-width", 1)
+		// .attr("display", "none")
 
 		const simulation = d3
 			.forceSimulation(data.nodes)
@@ -36,7 +36,7 @@ export default function ForceLayout(props) {
 				d3
 					.forceLink()
 					.id((d) => d.id)
-					.links(links)
+					.links(data.links)
 			)
 			.on("tick", () => {
 				const nodes = d3
@@ -49,33 +49,33 @@ export default function ForceLayout(props) {
 					.enter()
 					.append("g")
 					.attr("id", (d) => d.id)
+					.attr("class", "node")
 					.on("click", function (event) {
-						dispatch({ id: Number(event.target.id) })
-
-						d3.select(this)
-							.select("circle")
-							.attr("fill", activeNodes.includes(this.id) ? "blue" : "red")
+						dispatch({ target: this, id: Number(this.id), event })
+						// select(this, event, activeNodes)
 					})
+					.on("mouseenter", (event, d) => null)
+					.on("mouseleave", (event, d) => null)
 					.call(
 						d3
 							.drag()
-							.on("start", (event) => {
+							.on("start", function (event) {
 								if (!event.active) simulation.alphaTarget(0.3).restart()
 								event.subject.fx = event.subject.x
 								event.subject.fy = event.subject.y
 							})
-							.on("drag", (event) => {
+							.on("drag", function (event) {
 								event.subject.fx = event.x
 								event.subject.fy = event.y
 							})
-							.on("end", (event) => {
+							.on("end", function (event) {
 								if (!event.active) simulation.alphaTarget(0)
 								event.subject.fx = null
 								event.subject.fy = null
 							})
 					)
 
-				lines
+				link
 					.attr("x1", (d) => d.source.x)
 					.attr("y1", (d) => d.source.y)
 					.attr("x2", (d) => d.target.x)
@@ -84,22 +84,21 @@ export default function ForceLayout(props) {
 				group
 					.append("circle")
 					.attr("r", (d) => formatWeight(d.weight, width))
-					.attr("id", (d) => d.id)
-					.attr("fill", "blue")
-				// .on("mouseover", (event) => showTooltip)
-				// .on("mouseout", (event) => hideTooltip)
+					.attr("class", "circle")
+					.attr("fill", colours.black)
+					.attr("stroke", colours.white)
 
 				group
 					.append("text")
 					.style(
-						"font",
-						(d) =>
-							`${formatFontSize(formatWeight(d.weight, width))}px sans-serif`
+						"font-size",
+						(d) => `${formatFontSize(formatWeight(d.weight, width))}px`
 					)
 					.attr("dx", 0)
-					.attr("fill", "white")
+					.attr("fill", colours.white)
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline", "middle")
+					.attr("class", "label")
 					.text((d) => truncate(d.title, formatWeight(d.weight, width)))
 			})
 	}, [data, width, height])

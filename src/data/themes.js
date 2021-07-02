@@ -31,3 +31,10 @@ export const themes = [
 	{ title: "Aesthetics", weight: 200, id: 30 },
 	{ title: "Access, Ability & Inclusivity", weight: 200, id: 31 },
 ]
+
+export const links = [
+	{ source: 1, target: 2 },
+	{ source: 1, target: 3 },
+	{ source: 1, target: 4 },
+	{ source: 2, target: 3 },
+]
