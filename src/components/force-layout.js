@@ -1,27 +1,23 @@
 import React from "react"
 import * as d3 from "d3"
+import styled from "styled-components"
 
-import styles from "./force-layout.module.css"
 import { reducer, truncate, formatWeight, formatFontSize } from "./helpers"
 import { colours } from "../styles/index"
 
 export default function ForceLayout(props) {
 	const { width, height, data } = props
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
-	// const [state, setState] = React.useState(new Object())
-
-	// console.log(state)
 
 	React.useEffect(() => {
+		// const svg = d3.select("#force-layout")
+
 		const link = d3
-			.select("svg")
+			.select("#force-layout")
 			.selectAll("line")
 			.data(data.links)
 			.enter()
 			.append("line")
-		// .style("stroke", "#000")
-		// .attr("stroke-width", 1)
-		// .attr("display", "none")
 
 		const simulation = d3
 			.forceSimulation(data.nodes)
@@ -40,7 +36,7 @@ export default function ForceLayout(props) {
 			)
 			.on("tick", () => {
 				const nodes = d3
-					.select("svg")
+					.select("#force-layout")
 					.selectAll("g")
 					.data(data.nodes)
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
@@ -52,7 +48,6 @@ export default function ForceLayout(props) {
 					.attr("class", "node")
 					.on("click", function (event) {
 						dispatch({ target: this, id: Number(this.id), event })
-						// select(this, event, activeNodes)
 					})
 					.on("mouseenter", (event, d) => null)
 					.on("mouseleave", (event, d) => null)
@@ -106,12 +101,27 @@ export default function ForceLayout(props) {
 	console.log(activeNodes)
 
 	return (
-		<div className={styles.wrapper}>
+		<Wrapper width={width} height={height}>
 			<svg
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}
+				id="force-layout"
 			></svg>
-		</div>
+		</Wrapper>
 	)
 }
+
+const Wrapper = styled.div`
+	border: 1px solid ${colours.white};
+	width: ${(p) => `${p.width}px`};
+	height: ${(p) => `${p.height}px`};
+
+	& svg g:hover {
+		cursor: grab;
+	}
+
+	& svg g:active {
+		cursor: grabbing;
+	}
+`

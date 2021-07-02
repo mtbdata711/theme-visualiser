@@ -1,4 +1,4 @@
-export const themes = [
+export const data = [
 	{ title: "Social Justice", weight: 900, id: 1 },
 	{ title: "Climate Emergency", weight: 800, id: 2 },
 	{ title: "Activism", weight: 700, id: 3 },

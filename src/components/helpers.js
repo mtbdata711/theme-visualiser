@@ -33,6 +33,6 @@ const deselect = (d) => {
 export const truncate = (t, r, f = 5) =>
 	t.length > r / f ? `${t.substring(0, r / f)}…` : t
 
-export const formatWeight = (weight, width) => (width * 10) / weight
+export const formatWeight = (weight, width, f = 20) => (width * f) / weight
 
 export const formatFontSize = (r) => (r > 40 ? 16 : r > 30 ? 14 : 12)
