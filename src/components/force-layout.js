@@ -49,24 +49,24 @@ export default function ForceLayout(props) {
 					})
 					.on("mouseenter", (event, d) => null)
 					.on("mouseleave", (event, d) => null)
-					.call(
-						d3
-							.drag()
-							.on("start", function (event) {
-								if (!event.active) simulation.alphaTarget(0.3).restart()
-								event.subject.fx = event.subject.x
-								event.subject.fy = event.subject.y
-							})
-							.on("drag", function (event) {
-								event.subject.fx = event.x
-								event.subject.fy = event.y
-							})
-							.on("end", function (event) {
-								if (!event.active) simulation.alphaTarget(0)
-								event.subject.fx = null
-								event.subject.fy = null
-							})
-					)
+				// .call(
+				// 	d3
+				// 		.drag()
+				// 		.on("start", function (event) {
+				// 			if (!event.active) simulation.alphaTarget(0.3).restart()
+				// 			event.subject.fx = event.subject.x
+				// 			event.subject.fy = event.subject.y
+				// 		})
+				// 		.on("drag", function (event) {
+				// 			event.subject.fx = event.x
+				// 			event.subject.fy = event.y
+				// 		})
+				// 		.on("end", function (event) {
+				// 			if (!event.active) simulation.alphaTarget(0)
+				// 			event.subject.fx = null
+				// 			event.subject.fy = null
+				// 		})
+				// )
 
 				link
 					.attr("x1", (d) => d.source.x)
@@ -97,7 +97,7 @@ export default function ForceLayout(props) {
 			})
 	}, [data, width, height])
 
-	console.log(activeNodes)
+	// console.log(activeNodes)
 
 	return (
 		<Wrapper width={width} height={height}>

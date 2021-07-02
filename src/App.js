@@ -5,6 +5,8 @@ import { UALLogo, Header, Main, Title } from "./components"
 import { data, links } from "./data"
 
 export default function App() {
+	const [state, setState] = React.useState(new Object())
+
 	return (
 		<>
 			<Header padding={[1, 2, 3]}>
