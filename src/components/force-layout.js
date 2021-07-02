@@ -10,8 +10,6 @@ export default function ForceLayout(props) {
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
 
 	React.useEffect(() => {
-		// const svg = d3.select("#force-layout")
-
 		const link = d3
 			.select("#force-layout")
 			.selectAll("line")
@@ -82,6 +80,7 @@ export default function ForceLayout(props) {
 					.attr("class", "circle")
 					.attr("fill", colours.black)
 					.attr("stroke", colours.white)
+					.attr("stroke-width", 2)
 
 				group
 					.append("text")

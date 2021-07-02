@@ -1,4 +1,4 @@
-import { colours, palettes } from "../styles/index"
+import { colours } from "../styles/index"
 
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"

@@ -10,14 +10,8 @@ export const colours = {
 	blue: ["#2E00A3", "#1F4EDC", "#006CFF", "#0000FF"],
 	green: ["#00A200", "#00C73E", "#1AEB25", "#29FD2F"],
 	emerald: ["#0F7574", "#19A4A3", "#2FEACF", "#00FFDC"],
-	greys: [
-		"rgba(0, 0, 0, 0.9)",
-		"rgba(0, 0, 0, 0.8)",
-		"rgba(0, 0, 0, 0.7)",
-		"rgba(0, 0, 0, 0.6)",
-		"rgba(0, 0, 0, 0.5)",
-		"rgba(0, 0, 0, 0.4)",
-	],
+	dark: ["#0A0A0A", "#171717", "#3B3B3B", "#808080"],
+	bright: ["#FFFFFF", "#F6F6F6", "#D1D1D1", "#808080"],
 }
 
 export const palettes = {
