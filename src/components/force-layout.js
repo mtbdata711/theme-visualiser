@@ -16,6 +16,8 @@ export default function ForceLayout(props) {
 			.data(data.links)
 			.enter()
 			.append("line")
+			.attr("stroke", colours.white)
+			.attr("stroke-width", 2)
 
 		const simulation = d3
 			.forceSimulation(data.nodes)
@@ -49,24 +51,24 @@ export default function ForceLayout(props) {
 					})
 					.on("mouseenter", (event, d) => null)
 					.on("mouseleave", (event, d) => null)
-				// .call(
-				// 	d3
-				// 		.drag()
-				// 		.on("start", function (event) {
-				// 			if (!event.active) simulation.alphaTarget(0.3).restart()
-				// 			event.subject.fx = event.subject.x
-				// 			event.subject.fy = event.subject.y
-				// 		})
-				// 		.on("drag", function (event) {
-				// 			event.subject.fx = event.x
-				// 			event.subject.fy = event.y
-				// 		})
-				// 		.on("end", function (event) {
-				// 			if (!event.active) simulation.alphaTarget(0)
-				// 			event.subject.fx = null
-				// 			event.subject.fy = null
-				// 		})
-				// )
+					.call(
+						d3
+							.drag()
+							.on("start", (event) => {
+								if (!event.active) simulation.alphaTarget(0.3).restart()
+								event.subject.fx = event.subject.x
+								event.subject.fy = event.subject.y
+							})
+							.on("drag", (event) => {
+								event.subject.fx = event.x
+								event.subject.fy = event.y
+							})
+							.on("end", (event) => {
+								if (!event.active) simulation.alphaTarget(0)
+								event.subject.fx = null
+								event.subject.fy = null
+							})
+					)
 
 				link
 					.attr("x1", (d) => d.source.x)
@@ -96,8 +98,6 @@ export default function ForceLayout(props) {
 					.text((d) => truncate(d.title, formatWeight(d.weight, width)))
 			})
 	}, [data, width, height])
-
-	// console.log(activeNodes)
 
 	return (
 		<Wrapper width={width} height={height}>

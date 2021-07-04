@@ -1,4 +1,4 @@
-import { colours } from "../styles/index"
+import { colours, theme } from "../styles/index"
 
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
@@ -35,4 +35,9 @@ export const truncate = (t, r, f = 5) =>
 
 export const formatWeight = (weight, width, f = 20) => (width * f) / weight
 
-export const formatFontSize = (r) => (r > 40 ? 16 : r > 30 ? 14 : 12)
+export const formatFontSize = (r) =>
+	r > 40
+		? theme.labelSizes[2]
+		: r > 30
+		? theme.labelSizes[1]
+		: theme.labelSizes[0]
