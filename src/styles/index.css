@@ -3,5 +3,28 @@ body {
 	font-family: "Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	background-color: black;
+	background-color: #171717;
+}
+
+.tooltip {
+	border-radius: 0.5rem;
+	background-color: #fff;
+	border: 1px solid #000;
+	display: block;
+	position: absolute;
+	text-overflow: ellipsis;
+	white-space: pre;
+	visibility: hidden;
+	padding: 0.5rem;
+}
+
+.tooltip-title,
+.tooltip-label {
+	margin: 0;
+	color: #000;
+}
+
+.tooltip-label {
+	font-weight: 600;
+	font-size: 2rem;
 }

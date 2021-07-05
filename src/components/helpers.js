@@ -20,24 +20,25 @@ const select = (d) => {
 	const circle = d.children[0]
 	const text = d.children[1]
 	circle.setAttribute("fill", colours.white)
-	text.setAttribute("fill", colours.black)
+	circle.setAttribute("stroke", colours.orange[1])
+	text.setAttribute("fill", colours.orange[1])
 }
 
 const deselect = (d) => {
 	const circle = d.children[0]
 	const text = d.children[1]
-	circle.setAttribute("fill", colours.black)
+	circle.setAttribute("fill", colours.dark[1])
 	text.setAttribute("fill", colours.white)
 }
 
 export const truncate = (t, r, f = 5) =>
 	t.length > r / f ? `${t.substring(0, r / f)}…` : t
 
-export const formatWeight = (weight, width, f = 20) => (width * f) / weight
+export const formatWeight = (weight, f = 10) => weight / f
 
-export const formatFontSize = (r) =>
-	r > 40
+export const formatFontSize = (r, bp = [30, 50]) =>
+	r > bp[1]
 		? theme.labelSizes[2]
-		: r > 30
+		: r > bp[1]
 		? theme.labelSizes[1]
 		: theme.labelSizes[0]
