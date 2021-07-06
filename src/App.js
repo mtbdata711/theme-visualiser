@@ -14,11 +14,7 @@ export const App = () => (
 				<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
 			</Nav>
 
-			<ForceLayout
-				width={window.innerWidth}
-				height={800}
-				data={{ nodes: data }}
-			/>
+			<ForceLayout width={window.innerWidth} height={800} data={data} />
 		</Main>
 	</>
 )

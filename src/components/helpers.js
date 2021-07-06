@@ -1,4 +1,6 @@
-import { colours, theme } from "../styles/index"
+import * as d3 from "d3"
+import { colours } from "../styles/index"
+import { data } from "../data"
 
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
@@ -16,29 +18,31 @@ export const reducer = (ids, action) => {
 	}
 }
 
-const select = (d) => {
-	const circle = d.children[0]
-	const text = d.children[1]
+const select = ({ children }) => {
+	const [circle, text] = children
 	circle.setAttribute("fill", colours.white)
-	circle.setAttribute("stroke", colours.orange[1])
-	text.setAttribute("fill", colours.orange[1])
+	text.setAttribute("fill", colours.dark[1])
 }
 
-const deselect = (d) => {
-	const circle = d.children[0]
-	const text = d.children[1]
+const deselect = ({ children }) => {
+	const [circle, text] = children
 	circle.setAttribute("fill", colours.dark[1])
 	text.setAttribute("fill", colours.white)
 }
 
-export const truncate = (t, r, f = 5) =>
-	t.length > r / f ? `${t.substring(0, r / f)}…` : t
+export const truncate = (text, radius, f = 6) =>
+	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
 
-export const formatWeight = (weight, f = 10) => weight / f
+export const formatWeight = (weight, f = 8) => weight / f
 
-export const formatFontSize = (r, bp = [30, 50]) =>
-	r > bp[1]
-		? theme.labelSizes[2]
-		: r > bp[1]
-		? theme.labelSizes[1]
-		: theme.labelSizes[0]
+export const color = (id) => {
+	const entries = Object.entries(colours.tones)
+	const values = Object.values(colours.tones)
+
+	const quantile = d3
+		.scaleQuantile()
+		.domain([0, data.length])
+		.range(Array.from({ length: entries.length }, (d, i) => i))
+
+	return values[quantile(id)][1]
+}

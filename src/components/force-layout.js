@@ -2,7 +2,7 @@ import React from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "../components"
-import { reducer, truncate, formatWeight, formatFontSize } from "./helpers"
+import { reducer, truncate, formatWeight, color } from "./helpers"
 import { colours } from "../styles/index"
 
 export const ForceLayout = (props) => {
@@ -35,7 +35,7 @@ export const ForceLayout = (props) => {
 			.attr("stroke-width", 2)
 
 		const simulation = d3
-			.forceSimulation(data.nodes)
+			.forceSimulation(data)
 			.force("charge", d3.forceManyBody().strength(10))
 			.force("center", d3.forceCenter(width / 2, height / 2))
 			.force(
@@ -53,7 +53,7 @@ export const ForceLayout = (props) => {
 				const nodes = d3
 					.select("#force-layout")
 					.selectAll("g")
-					.data(data.nodes)
+					.data(data)
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
 
 				const group = nodes
@@ -109,17 +109,13 @@ export const ForceLayout = (props) => {
 					.attr("r", (d) => formatWeight(d.weight))
 					.attr("class", "circle")
 					.attr("fill", colours.dark[1])
-					.attr("stroke", colours.white)
+					.attr("stroke", (d) => color(d.id))
 					.attr("stroke-width", 2)
 
 				group
 					.append("text")
-					.style(
-						"font-size",
-						(d) => `${formatFontSize(formatWeight(d.weight))}px`
-					)
-					.attr("dx", 0)
-					.attr("fill", colours.white)
+					.style("font-size", "16px")
+					.attr("fill", (d) => color(d.id))
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline", "middle")
 					.attr("class", "title")
