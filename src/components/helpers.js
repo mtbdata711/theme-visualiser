@@ -33,7 +33,7 @@ const deselect = (d) => {
 export const truncate = (text, radius, f = 8) =>
 	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
 
-export const formatWeight = (weight, f = 8) => weight / f
+export const formatWeight = (weight, f = 10) => weight / f
 
 export const color = (id) => {
 	const entries = Object.entries(colours.tones)

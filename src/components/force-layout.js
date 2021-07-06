@@ -29,18 +29,9 @@ export const ForceLayout = (props) => {
 		tooltip.append("p").attr("class", "tooltip-title")
 		tooltip.append("p").attr("class", "tooltip-label")
 
-		// const link = d3
-		// 	.select("#force-layout")
-		// 	.selectAll("line")
-		// 	.data(links)
-		// 	.enter()
-		// 	.append("line")
-		// 	.attr("class", "link")
-		// 	.attr("stroke-width", 2)
-
 		const link = d3
 			.select("#force-layout")
-			.selectAll("g")
+			.selectAll(".link")
 			.data(links)
 			.enter()
 			.append("g")
@@ -56,22 +47,27 @@ export const ForceLayout = (props) => {
 			.attr("class", "button")
 			.attr("r", 12)
 			.attr("fill", "white")
-
-		// const line = link
-		// 	.append("line")
-		// 	.data(links)
-		// 	.attr("stroke-width", 2)
-		// 	.attr("class", "line")
-
-		// const link = d3
-		// 	.select("#force-layout")
-		// 	.append("g")
-		// 	.attr("transform", `translate(0, 0)`)
-		// 	.attr("class", "link")
-		// 	.selectAll("line")
-		// 	.data(links)
-		// 	.join("line")
-		// 	.attr("stroke-width", 2)
+			.on(
+				"click",
+				(event, d) =>
+					(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
+			)
+			.on("mouseover", (event, d) => {
+				d3.select(".tooltip").style("visibility", "visible")
+				d3.select(".tooltip-title").text(`This is the intersection of:`)
+				d3.select(".tooltip-label").text(
+					`${d.source.title} and ${d.target.title}`
+				)
+			})
+			.on("mousemove", (event, d) =>
+				d3
+					.select(".tooltip")
+					.style("top", `${event.pageY + 10}px`)
+					.style("left", `${event.pageX + 10}px`)
+			)
+			.on("mouseout", (event, d) => {
+				d3.select(".tooltip").style("visibility", "hidden")
+			})
 
 		const simulation = d3
 			.forceSimulation(data)
@@ -87,12 +83,12 @@ export const ForceLayout = (props) => {
 					.forceLink()
 					.id((d) => d.id)
 					.links(links)
-					.distance(200)
+					.distance(300)
 			)
 			.on("tick", () => {
 				const nodes = d3
 					.select("#force-layout")
-					.selectAll("g")
+					.selectAll(".node")
 					.data(data)
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
 
@@ -132,7 +128,7 @@ export const ForceLayout = (props) => {
 								event.subject.fy = event.y
 							})
 							.on("end", (event) => {
-								if (!event.active) simulation.alphaTarget(0.3)
+								if (!event.active) simulation.alphaTarget(0)
 								event.subject.fx = null
 								event.subject.fy = null
 							})
@@ -180,12 +176,12 @@ export const ForceLayout = (props) => {
 				viewBox={`0 0 ${width} ${height}`}
 				id="force-layout"
 			>
-				{/* <defs>
+				<defs>
 					<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
 						<stop offset="0%" stopColor="#fff" />
 						<stop offset="100%" stopColor="#000" />
 					</linearGradient>
-				</defs> */}
+				</defs>
 			</svg>
 		</GraphWrapper>
 	)
