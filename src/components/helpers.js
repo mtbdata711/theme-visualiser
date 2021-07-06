@@ -20,14 +20,14 @@ export const reducer = (ids, action) => {
 
 const select = (d) => {
 	const [circle, text] = d.children
-	circle.setAttribute("fill", color(d.id))
+	circle.setAttribute("fill", colourize(d.id))
 	text.setAttribute("fill", colours.dark[1])
 }
 
 const deselect = (d) => {
 	const [circle, text] = d.children
 	circle.setAttribute("fill", colours.dark[1])
-	text.setAttribute("fill", color(d.id))
+	text.setAttribute("fill", colourize(d.id))
 }
 
 export const truncate = (text, radius, f = 8) =>
@@ -35,7 +35,7 @@ export const truncate = (text, radius, f = 8) =>
 
 export const formatWeight = (weight, f = 10) => weight / f
 
-export const color = (id) => {
+export const colourize = (id) => {
 	const entries = Object.entries(colours.tones)
 	const values = Object.values(colours.tones)
 
@@ -51,4 +51,17 @@ export const halfDistance = (v1, v2) => {
 	const vx = (v2.x - v1.x) / 2
 	const vy = (v2.y - v1.y) / 2
 	return { x: v1.x + vx, y: v1.y + vy }
+}
+
+export const gradients = () => {
+	const c = Object.values(colours.tones)
+	const pairs = []
+
+	for (let x = 0; x < c.length; x++) {
+		for (let y = 0; y < c.length; y++) {
+			pairs.push({ x: c[x][1], y: c[y][1] })
+		}
+	}
+
+	return pairs
 }

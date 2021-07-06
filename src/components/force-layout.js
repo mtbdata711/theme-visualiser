@@ -2,7 +2,14 @@ import React from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "../components"
-import { reducer, truncate, formatWeight, color, halfDistance } from "./helpers"
+import {
+	reducer,
+	truncate,
+	formatWeight,
+	colourize,
+	halfDistance,
+	gradients,
+} from "./helpers"
 import { colours } from "../styles/index"
 
 export const ForceLayout = (props) => {
@@ -11,12 +18,15 @@ export const ForceLayout = (props) => {
 
 	// https://bl.ocks.org/mbostock/0adcc447925ffae87975a3a81628a196
 	const links = [
+		// { source: 22, target: 6 },
+		// { source: 22, target: 10 },
+		// { source: 6, target: 10 },
 		{ source: 18, target: 1 },
-		{ source: 18, target: 10 },
-		{ source: 1, target: 10 },
+		{ source: 18, target: 12 },
+		{ source: 1, target: 12 },
 	]
 
-	// console.log(activeNodes)
+	console.log(activeNodes)
 
 	React.useEffect(() => {
 		const tooltip = d3
@@ -40,13 +50,12 @@ export const ForceLayout = (props) => {
 		const line = link
 			.append("line")
 			.attr("class", "line")
-			.attr("stroke-width", 2)
+			.attr("stroke-width", 3)
 
 		const button = link
 			.append("circle")
 			.attr("class", "button")
 			.attr("r", 12)
-			.attr("fill", "white")
 			.on(
 				"click",
 				(event, d) =>
@@ -136,30 +145,45 @@ export const ForceLayout = (props) => {
 
 				link.attr("transform", (d) => `translate(0, 0)`)
 
-				button.attr("transform", (d) => {
-					const { x, y } = halfDistance(d.source, d.target)
-					return `translate(${x}, ${y})`
-				})
+				button
+					.attr("transform", (d) => {
+						const { x, y } = halfDistance(d.source, d.target)
+						return `translate(${x}, ${y})`
+					})
+					.attr("fill", (d) => {
+						const scale = d3
+							.scaleLinear()
+							.domain([0, 2])
+							.range([colourize(d.source.id), colourize(d.target.id)])
+
+						return scale(1)
+					})
+
 				line
 					.attr("x1", (d) => d.source.x)
 					.attr("y1", (d) => d.source.y)
 					.attr("x2", (d) => d.target.x)
 					.attr("y2", (d) => d.target.y)
-					.attr("stroke", colours.white)
-				// .attr("stroke", "url(#linear)")
+					.attr(
+						"stroke",
+						(d) =>
+							`url(#from-${colourize(d.source.id)}-to-${colourize(
+								d.target.id
+							)})`
+					)
 
 				group
 					.append("circle")
 					.attr("r", (d) => formatWeight(d.weight))
 					.attr("class", "circle")
 					.attr("fill", colours.dark[1])
-					.attr("stroke", (d) => color(d.id))
-					.attr("stroke-width", 2)
+					.attr("stroke", (d) => colourize(d.id))
+					.attr("stroke-width", 3)
 
 				group
 					.append("text")
 					.style("font-size", "16px")
-					.attr("fill", (d) => color(d.id))
+					.attr("fill", (d) => colourize(d.id))
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline", "middle")
 					.attr("class", "title")
@@ -177,10 +201,19 @@ export const ForceLayout = (props) => {
 				id="force-layout"
 			>
 				<defs>
-					<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
-						<stop offset="0%" stopColor="#fff" />
-						<stop offset="100%" stopColor="#000" />
-					</linearGradient>
+					{gradients().map((gradient) => (
+						<linearGradient
+							id={`from-${gradient.x}-to-${gradient.y}`}
+							key={`from-${gradient.x}-to-${gradient.y}`}
+							x1="0%"
+							y1="0%"
+							x2="100%"
+							y2="0%"
+						>
+							<stop offset="0%" stopColor={gradient.x} />
+							<stop offset="100%" stopColor={gradient.y} />
+						</linearGradient>
+					))}
 				</defs>
 			</svg>
 		</GraphWrapper>
