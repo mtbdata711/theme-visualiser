@@ -40,7 +40,6 @@ export const theme = {
 		"4rem",
 		"6rem",
 	],
-	labelSizes: [12, 14, 16],
 	spaces: [
 		"0.875rem",
 		"1rem",

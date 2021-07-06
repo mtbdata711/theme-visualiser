@@ -18,19 +18,19 @@ export const reducer = (ids, action) => {
 	}
 }
 
-const select = ({ children }) => {
-	const [circle, text] = children
-	circle.setAttribute("fill", colours.white)
+const select = (d) => {
+	const [circle, text] = d.children
+	circle.setAttribute("fill", color(d.id))
 	text.setAttribute("fill", colours.dark[1])
 }
 
-const deselect = ({ children }) => {
-	const [circle, text] = children
+const deselect = (d) => {
+	const [circle, text] = d.children
 	circle.setAttribute("fill", colours.dark[1])
-	text.setAttribute("fill", colours.white)
+	text.setAttribute("fill", color(d.id))
 }
 
-export const truncate = (text, radius, f = 6) =>
+export const truncate = (text, radius, f = 8) =>
 	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
 
 export const formatWeight = (weight, f = 8) => weight / f
@@ -45,4 +45,10 @@ export const color = (id) => {
 		.range(Array.from({ length: entries.length }, (d, i) => i))
 
 	return values[quantile(id)][1]
+}
+
+export const halfDistance = (v1, v2) => {
+	const vx = (v2.x - v1.x) / 2
+	const vy = (v2.y - v1.y) / 2
+	return { x: v1.x + vx, y: v1.y + vy }
 }
