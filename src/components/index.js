@@ -44,15 +44,63 @@ const StyledNav = styled.nav`
 	}
 `
 
+export const Main = ({ children, ...styles }) => (
+	<StyledMain styles={styles}>{children}</StyledMain>
+)
+
+const StyledMain = styled.main`
+	width: 100%;
+`
+
+export const Box = ({ children, ...styles }) => (
+	<StyledBox styles={styles}>{children}</StyledBox>
+)
+
+const StyledBox = styled.div`
+	background-color: ${(p) => p.styles.backgroundColor};
+
+	@media ${device.mobile} {
+		padding: ${(p) => theme.spaces[p.styles.padding[0]]};
+	}
+
+	@media ${device.laptop} {
+		padding: ${(p) => theme.spaces[p.styles.padding[1]]};
+	}
+
+	@media ${device.desktop} {
+		padding: ${(p) => theme.spaces[p.styles.padding[2]]};
+	}
+`
+
+export const Flex = ({ children, ...styles }) => (
+	<StyledFlex styles={styles}>{children}</StyledFlex>
+)
+
+const StyledFlex = styled.div`
+	display: flex;
+
+	@media ${device.mobile} {
+		padding: ${(p) => theme.spaces[p.styles.padding[0]]};
+		flex-direction: ${(p) => p.styles.flexDirection[0]};
+	}
+
+	@media ${device.laptop} {
+		padding: ${(p) => theme.spaces[p.styles.padding[1]]};
+		flex-direction: ${(p) => p.styles.flexDirection[1]};
+	}
+
+	@media ${device.desktop} {
+		padding: ${(p) => theme.spaces[p.styles.padding[2]]};
+	}
+`
+
 export const Title = ({ children, ...styles }) => (
 	<StyledTitle styles={styles}>{children}</StyledTitle>
 )
 
 const StyledTitle = styled.h1`
-	color: inherit;
+	color: ${() => colours.white};
 	margin: 0;
-	padding-bottom: ${() => theme.spaces[1]};
-	border-bottom: 1px solid ${() => colours.white};
 
 	@media ${device.mobile} {
 		font-size: ${(p) => theme.sizes[p.styles.fontSize[0]]};
@@ -89,12 +137,33 @@ const StyledSubtitle = styled.h2`
 	}
 `
 
-export const Main = ({ children, ...styles }) => (
-	<StyledMain styles={styles}>{children}</StyledMain>
+export const Text = ({ children, ...styles }) => (
+	<StyledText styles={styles}>{children}</StyledText>
 )
 
-const StyledMain = styled.main`
-	width: 100%;
+const StyledText = styled.p`
+	color: ${() => colours.white};
+	margin: 0;
+`
+
+export const SelectWrapper = ({ children, ...styles }) => {
+	return <StyledSelectWrapper styles={styles}>{children}</StyledSelectWrapper>
+}
+
+const StyledSelectWrapper = styled.div`
+	background-color: ${(p) => p.styles.backgroundColor};
+
+	@media ${device.mobile} {
+		width: ${(p) => p.styles.width[0]};
+	}
+
+	@media ${device.laptop} {
+		width: ${(p) => p.styles.width[1]};
+	}
+
+	@media ${device.desktop} {
+		width: ${(p) => p.styles.width[2]};
+	}
 `
 
 export const GraphWrapper = ({ children, width, height }) => {
@@ -116,6 +185,16 @@ const StyledGraphWrapper = styled.div`
 	& svg g:active {
 		cursor: grabbing;
 	}
+`
+
+export const Label = ({ children, ...styles }) => (
+	<StyledLabel styles={styles}>{children}</StyledLabel>
+)
+
+const StyledLabel = styled.label`
+	color: ${() => colours.white};
+	display: block;
+	padding: ${(p) => p.styles.padding};
 `
 
 export const ExternalLink = ({ href, label, ...styles }) => (
