@@ -23,8 +23,8 @@ export const SelectBox = ({ options, dispatch }) => {
 							onChange={function (event) {
 								console.log(this)
 
-								return null
-								dispatch({ target: this, id: Number(this.id), event })
+								// return null
+								// dispatch({ target: this, id: Number(this.id), event })
 							}}
 						/>
 						{option.title}
