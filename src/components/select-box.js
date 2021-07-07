@@ -1,12 +1,10 @@
 import { SelectWrapper, Box, Title, Label } from "./index"
 import { colours } from "../styles"
 
-export const SelectBox = ({ options, dispatch }) => {
-	// console.log("check")
-
+export const SelectBox = ({ options, dispatch, activeNodes }) => {
 	return (
 		<SelectWrapper
-			width={["100%", "320px", "400px"]}
+			width={["100%", "300px", "400px"]}
 			backgroundColor={colours.dark[0]}
 		>
 			<Box backgroundColor={colours.blue} padding={[1, 1, 1]}>
@@ -20,12 +18,14 @@ export const SelectBox = ({ options, dispatch }) => {
 							name={option.title}
 							id={option.id}
 							value={option.title}
-							onChange={function (event) {
-								console.log(this)
-
-								// return null
-								// dispatch({ target: this, id: Number(this.id), event })
-							}}
+							checked={activeNodes.includes(option.id)}
+							onChange={(event) =>
+								dispatch({
+									target: event.target,
+									id: Number(event.target.id),
+									event,
+								})
+							}
 						/>
 						{option.title}
 					</Label>

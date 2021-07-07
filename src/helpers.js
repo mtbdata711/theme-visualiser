@@ -6,10 +6,10 @@ export const reducer = (ids, action) => {
 
 	switch (type) {
 		case "ADD":
-			select(action.target)
+			action.target.type !== "checkbox" && select(action.target)
 			return [...ids, action.id]
 		case "REMOVE":
-			deselect(action.target)
+			action.target.type !== "checkbox" && deselect(action.target)
 			return [...ids.slice(0, idx), ...ids.slice(idx + 1)]
 		default:
 			throw new Error()

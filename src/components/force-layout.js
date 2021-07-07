@@ -5,9 +5,14 @@ import { GraphWrapper } from "./index"
 import { truncate, formatWeight, halfDistance } from "../helpers"
 import { colours } from "../styles/index"
 
-export const ForceLayout = (props) => {
-	const { width, height, data, activeNodes, ...styles } = props
-
+export const ForceLayout = ({
+	width,
+	height,
+	data,
+	dispatch,
+	activeNodes,
+	...styles
+}) => {
 	// https://bl.ocks.org/mbostock/0adcc447925ffae87975a3a81628a196
 	const links = [
 		{ source: 18, target: 1 },
@@ -93,7 +98,9 @@ export const ForceLayout = (props) => {
 					.append("g")
 					.attr("id", (d) => d.id)
 					.attr("class", "node")
-					.on("click", (event) => console.log(event))
+					.on("click", function (event) {
+						dispatch({ target: this, id: Number(this.id), event })
+					})
 					.on("mouseover", (event, d) => {
 						d3.select(".tooltip").style("visibility", "visible")
 						d3.select(".tooltip-title").text(d.title)
@@ -162,7 +169,7 @@ export const ForceLayout = (props) => {
 					.text((d) => truncate(d.title, formatWeight(d.weight)))
 			})
 		// eslint-disable-next-line
-	}, [data, width, height])
+	}, [data, width, height, activeNodes])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>

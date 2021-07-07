@@ -8,8 +8,6 @@ import { data } from "./data"
 export const App = () => {
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
 
-	console.log(activeNodes)
-
 	return (
 		<>
 			<Header padding={[2, 3, 4]}>
@@ -23,12 +21,17 @@ export const App = () => {
 				</Nav>
 
 				<Flex padding={[2, 3, 4]} flexDirection={["column", "row"]}>
-					<SelectBox options={data} dispatch={dispatch} />
+					<SelectBox
+						options={data}
+						dispatch={dispatch}
+						activeNodes={activeNodes}
+					/>
 
 					<ForceLayout
-						width={(2 / 3) * window.innerWidth}
+						width={860}
 						height={700}
 						data={data}
+						dispatch={dispatch}
 						activeNodes={activeNodes}
 					/>
 				</Flex>

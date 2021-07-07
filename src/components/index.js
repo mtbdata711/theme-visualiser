@@ -8,7 +8,6 @@ export const Header = ({ children, ...styles }) => (
 )
 
 const StyledHeader = styled.header`
-	width: 100%;
 	background-color: ${() => colours.black};
 
 	@media ${device.mobile} {
@@ -151,7 +150,7 @@ export const SelectWrapper = ({ children, ...styles }) => {
 }
 
 const StyledSelectWrapper = styled.div`
-	background-color: ${(p) => p.styles.backgroundColor};
+	border: 1px solid ${() => colours.white};
 
 	@media ${device.mobile} {
 		width: ${(p) => p.styles.width[0]};
