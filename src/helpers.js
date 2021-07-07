@@ -1,3 +1,4 @@
+import * as d3 from "d3"
 import { colours } from "./styles/index"
 
 export const reducer = (ids, action) => {
@@ -6,25 +7,32 @@ export const reducer = (ids, action) => {
 
 	switch (type) {
 		case "ADD":
-			action.target.type !== "checkbox" && select(action.target)
+			select(action.target)
 			return [...ids, action.id]
 		case "REMOVE":
-			action.target.type !== "checkbox" && deselect(action.target)
+			deselect(action.target)
 			return [...ids.slice(0, idx), ...ids.slice(idx + 1)]
 		default:
 			throw new Error()
 	}
 }
 
-const select = (d) => {
-	const [circle, text] = d.children
+const select = (target) => {
+	// console.log(target)
+	const [circle, text] =
+		target.type === "checkbox"
+			? d3.select(`#group-${target.id}`)._groups[0][0].children
+			: target.children
 	circle.setAttribute("fill", colours.orange)
 	circle.setAttribute("stroke", colours.orange)
 	text.setAttribute("fill", colours.dark[1])
 }
 
-const deselect = (d) => {
-	const [circle, text] = d.children
+const deselect = (target) => {
+	const [circle, text] =
+		target.type === "checkbox"
+			? d3.select(`#group-${target.id}`)._groups[0][0].children
+			: target.children
 	circle.setAttribute("fill", colours.dark[1])
 	circle.setAttribute("stroke", colours.white)
 	text.setAttribute("fill", colours.white)

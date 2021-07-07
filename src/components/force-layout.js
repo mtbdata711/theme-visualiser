@@ -96,7 +96,7 @@ export const ForceLayout = ({
 				const group = nodes
 					.enter()
 					.append("g")
-					.attr("id", (d) => d.id)
+					.attr("id", (d) => `group-${d.id}`)
 					.attr("class", "node")
 					.on("click", function (event) {
 						dispatch({ target: this, id: Number(this.id), event })
