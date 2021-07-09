@@ -7,6 +7,8 @@ import { data } from "./data"
 
 export const App = () => {
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
+	const width = 840
+	const height = 500
 
 	return (
 		<>
@@ -28,8 +30,8 @@ export const App = () => {
 					/>
 
 					<ForceLayout
-						width={840}
-						height={700}
+						width={width}
+						height={height}
 						data={data}
 						dispatch={dispatch}
 						activeNodes={activeNodes}

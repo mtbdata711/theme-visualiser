@@ -30,6 +30,7 @@ export const ForceLayout = ({
 
 		tooltip.append("p").attr("class", "tooltip-title")
 		tooltip.append("p").attr("class", "tooltip-label")
+		tooltip.append("p").attr("class", "tooltip-cta")
 
 		const link = d3
 			.select("#force-layout")
@@ -48,6 +49,8 @@ export const ForceLayout = ({
 			.append("circle")
 			.attr("class", "button")
 			.attr("r", 12)
+			.attr("fill", colours.orange)
+			.attr("stroke-width", 3)
 			.on(
 				"click",
 				(event, d) =>
@@ -59,6 +62,8 @@ export const ForceLayout = ({
 				d3.select(".tooltip-label").text(
 					`${d.source.title} and ${d.target.title}`
 				)
+				d3.select(".tooltip-cta").text("Click to explore these projects")
+				d3.select(event.target).attr("stroke", colours.white)
 			})
 			.on("mousemove", (event, d) =>
 				d3
@@ -68,6 +73,7 @@ export const ForceLayout = ({
 			)
 			.on("mouseout", (event, d) => {
 				d3.select(".tooltip").style("visibility", "hidden")
+				d3.select(event.target).attr("stroke", colours.orange)
 			})
 
 		const simulation = d3
@@ -94,13 +100,14 @@ export const ForceLayout = ({
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
 					.on("mouseover", (event, d) => {
 						d3.select(".tooltip").style("visibility", "visible")
+						d3.select(".tooltip-cta").text(null)
 						d3.select(".tooltip-title").text(d.title)
 						d3.select(".tooltip-label").text(d.weight)
 					})
 					.on("mousemove", (event, d) =>
 						d3
 							.select(".tooltip")
-							.style("top", `${event.pageY - 10}px`)
+							.style("top", `${event.pageY + 10}px`)
 							.style("left", `${event.pageX + 10}px`)
 					)
 					.on("mouseout", (event, d) => {
@@ -112,9 +119,6 @@ export const ForceLayout = ({
 					.append("g")
 					.attr("id", (d) => `group-${d.id}`)
 					.attr("class", "node")
-					// .on("click", function (event) {
-					// 	dispatch({ target: this, id: Number(this.id), event })
-					// })
 					.call(
 						d3
 							.drag()
@@ -137,19 +141,17 @@ export const ForceLayout = ({
 
 				link.attr("transform", (d) => `translate(0, 0)`)
 
-				button
-					.attr("transform", (d) => {
-						const { x, y } = halfDistance(d.source, d.target)
-						return `translate(${x}, ${y})`
-					})
-					.attr("fill", colours.white)
+				button.attr("transform", (d) => {
+					const { x, y } = halfDistance(d.source, d.target)
+					return `translate(${x}, ${y})`
+				})
 
 				line
 					.attr("x1", (d) => d.source.x)
 					.attr("y1", (d) => d.source.y)
 					.attr("x2", (d) => d.target.x)
 					.attr("y2", (d) => d.target.y)
-					.attr("stroke", colours.white)
+					.attr("stroke", colours.orange)
 
 				group
 					.append("circle")

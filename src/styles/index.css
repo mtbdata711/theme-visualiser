@@ -1,7 +1,5 @@
 body {
 	margin: 0;
-	width: 100vw;
-	height: 100vh;
 	font-family: "Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -10,23 +8,24 @@ body {
 
 .tooltip {
 	background-color: #000;
-	display: block;
-	position: absolute;
-	text-overflow: ellipsis;
-	white-space: pre;
 	visibility: hidden;
 	padding: 0.8rem;
 }
 
 .tooltip-title,
-.tooltip-label {
+.tooltip-label,
+.tooltip-cta {
 	margin: 0;
 	color: #fff;
 }
 
 .tooltip-label {
 	font-weight: 600;
-	font-size: 2rem;
+	font-size: 1.5rem;
+}
+
+.tooltip-cta {
+	padding-top: 1rem;
 }
 
 .checkbox {

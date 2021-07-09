@@ -150,18 +150,22 @@ export const SelectWrapper = ({ children, ...styles }) => {
 }
 
 const StyledSelectWrapper = styled.div`
-	border: 1px solid ${() => colours.white};
+	background-color: ${() => colours.black};
+	overflow: scroll;
 
 	@media ${device.mobile} {
 		width: ${(p) => p.styles.width[0]};
+		height: ${(p) => p.styles.height[0]};
 	}
 
 	@media ${device.laptop} {
 		width: ${(p) => p.styles.width[1]};
+		height: ${(p) => p.styles.height[1]};
 	}
 
 	@media ${device.desktop} {
 		width: ${(p) => p.styles.width[2]};
+		height: ${(p) => p.styles.height[2]};
 	}
 `
 
@@ -184,6 +188,10 @@ const StyledGraphWrapper = styled.div`
 	& svg g:active {
 		cursor: grabbing;
 	}
+
+	& svg .button:hover {
+		cursor: pointer;
+	}
 `
 
 export const Label = ({ children, className, ...styles }) => (
@@ -198,39 +206,6 @@ const StyledLabel = styled.label`
 	padding: ${(p) => p.styles.padding};
 	display: flex;
 	align-items: center;
-`
-
-export const ExternalLink = ({ href, label, ...styles }) => (
-	<StyledAnchor styles={styles} href={href} target="_blank">
-		{label}
-		<span>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="7"
-				height="12"
-				fill="none"
-				viewBox="0 0 7 12"
-			>
-				<path
-					fill={colours.white}
-					d="M3.892 0l.344.142c.082 1.04.42 2.149 1.014 3.324l-.264.649c-.635-.703-1.08-1.311-1.337-1.824L1.642 7.196l4.703-2.21L4.155 12l-.851-.203 1.662-5.29L0 8.878l2.878-6.892a7.524 7.524 0 01-.993.203 9.108 9.108 0 01-1.277.122l.264-.649C2.115 1.243 3.122.69 3.892 0z"
-				></path>
-			</svg>
-		</span>
-	</StyledAnchor>
-)
-
-const StyledAnchor = styled.a`
-	color: ${() => colours.white};
-	text-decoration: none;
-
-	&:hover {
-		text-decoration: underline;
-	}
-
-	& > span {
-		margin-left: ${() => theme.spaces[0]};
-	}
 `
 
 export const UALLogo = () => (
