@@ -50,16 +50,16 @@ export const theme = {
 	],
 }
 
-const size = {
-	mobile: "375px",
-	tablet: "768px",
-	laptop: "1024px",
-	desktop: "1920px",
+export const size = {
+	mobile: 375,
+	tablet: 768,
+	laptop: 1024,
+	desktop: 1920,
 }
 
 export const device = {
-	mobile: `(min-width: ${size.mobile})`,
-	tablet: `(min-width: ${size.tablet})`,
-	laptop: `(min-width: ${size.laptop})`,
-	desktop: `(min-width: ${size.desktop})`,
+	mobile: `(min-width: ${size.mobile}px)`,
+	tablet: `(min-width: ${size.tablet}px)`,
+	laptop: `(min-width: ${size.laptop}px)`,
+	desktop: `(min-width: ${size.desktop}px)`,
 }

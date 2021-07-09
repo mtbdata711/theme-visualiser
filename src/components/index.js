@@ -81,15 +81,18 @@ const StyledFlex = styled.div`
 	@media ${device.mobile} {
 		padding: ${(p) => theme.spaces[p.styles.padding[0]]};
 		flex-direction: ${(p) => p.styles.flexDirection[0]};
+		gap: ${(p) => theme.spaces[p.styles.gap[0]]};
 	}
 
 	@media ${device.laptop} {
 		padding: ${(p) => theme.spaces[p.styles.padding[1]]};
 		flex-direction: ${(p) => p.styles.flexDirection[1]};
+		gap: ${(p) => theme.spaces[p.styles.gap[1]]};
 	}
 
 	@media ${device.desktop} {
 		padding: ${(p) => theme.spaces[p.styles.padding[2]]};
+		gap: ${(p) => theme.spaces[p.styles.gap[2]]};
 	}
 `
 
@@ -180,6 +183,7 @@ export const GraphWrapper = ({ children, width, height }) => {
 const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
+	border: 1px solid white;
 
 	& svg g:hover {
 		cursor: grab;

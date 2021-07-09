@@ -3,12 +3,21 @@ import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
 import { UALLogo, Header, Nav, Main, Flex, Title, Subtitle } from "./components"
 import { reducer } from "./helpers/"
+// import { useWindowSize } from "./helpers/useWindowSize"
 import { data } from "./data"
+import { size } from "./styles"
 
 export const App = () => {
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
-	const width = 840
-	const height = 500
+	// const { width, height } = useWindowSize()
+
+	const width =
+		window.innerWidth <= size.laptop
+			? window.innerWidth - 50
+			: (3 / 4) * window.innerWidth
+
+	const height =
+		window.innerHeight <= size.laptop ? (3 / 4) * window.innerHeight : 700
 
 	return (
 		<>
@@ -22,7 +31,11 @@ export const App = () => {
 					<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
 				</Nav>
 
-				<Flex padding={[2, 3, 4]} flexDirection={["column", "row"]}>
+				<Flex
+					padding={[2, 3, 4]}
+					flexDirection={["column", "row"]}
+					gap={[2, 3, 4]}
+				>
 					<SelectBox
 						options={data}
 						dispatch={dispatch}
