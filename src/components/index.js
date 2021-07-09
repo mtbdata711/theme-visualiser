@@ -178,7 +178,7 @@ const StyledGraphWrapper = styled.div`
 	height: ${(p) => `${p.height}px`};
 
 	& svg g:hover {
-		cursor: pointer;
+		cursor: grab;
 	}
 
 	& svg g:active {
@@ -186,14 +186,18 @@ const StyledGraphWrapper = styled.div`
 	}
 `
 
-export const Label = ({ children, ...styles }) => (
-	<StyledLabel styles={styles}>{children}</StyledLabel>
+export const Label = ({ children, className, ...styles }) => (
+	<StyledLabel className={className} styles={styles}>
+		{children}
+	</StyledLabel>
 )
 
 const StyledLabel = styled.label`
 	color: ${() => colours.white};
 	display: block;
 	padding: ${(p) => p.styles.padding};
+	display: flex;
+	align-items: center;
 `
 
 export const ExternalLink = ({ href, label, ...styles }) => (

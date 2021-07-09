@@ -1,5 +1,5 @@
 import * as d3 from "d3"
-import { colours } from "./styles/index"
+import { colours } from "../styles/index"
 
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
@@ -18,7 +18,6 @@ export const reducer = (ids, action) => {
 }
 
 const select = (target) => {
-	// console.log(target)
 	const [circle, text] =
 		target.type === "checkbox"
 			? d3.select(`#group-${target.id}`)._groups[0][0].children

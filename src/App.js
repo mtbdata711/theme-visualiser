@@ -2,7 +2,7 @@ import React from "react"
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
 import { UALLogo, Header, Nav, Main, Flex, Title, Subtitle } from "./components"
-import { reducer } from "./helpers"
+import { reducer } from "./helpers/"
 import { data } from "./data"
 
 export const App = () => {
@@ -28,7 +28,7 @@ export const App = () => {
 					/>
 
 					<ForceLayout
-						width={860}
+						width={840}
 						height={700}
 						data={data}
 						dispatch={dispatch}

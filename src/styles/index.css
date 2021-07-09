@@ -9,24 +9,40 @@ body {
 }
 
 .tooltip {
-	border-radius: 0.5rem;
-	background-color: #fff;
-	border: 1px solid #000;
+	background-color: #000;
 	display: block;
 	position: absolute;
 	text-overflow: ellipsis;
 	white-space: pre;
 	visibility: hidden;
-	padding: 0.5rem;
+	padding: 0.8rem;
 }
 
 .tooltip-title,
 .tooltip-label {
 	margin: 0;
-	color: #000;
+	color: #fff;
 }
 
 .tooltip-label {
 	font-weight: 600;
 	font-size: 2rem;
+}
+
+.checkbox {
+	margin-right: 1rem;
+	-webkit-appearance: none;
+	background-color: transparent;
+	border: 2px solid white;
+	padding: 6px;
+	display: inline-block;
+	position: relative;
+}
+
+.checkbox:checked {
+	background-color: white;
+}
+
+.selected {
+	font-weight: bold;
 }

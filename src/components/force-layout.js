@@ -2,7 +2,7 @@ import React from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "./index"
-import { truncate, formatWeight, halfDistance } from "../helpers"
+import { truncate, formatWeight, halfDistance } from "../helpers/"
 import { colours } from "../styles/index"
 
 export const ForceLayout = ({
@@ -92,15 +92,6 @@ export const ForceLayout = ({
 					.selectAll(".node")
 					.data(data)
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-
-				const group = nodes
-					.enter()
-					.append("g")
-					.attr("id", (d) => `group-${d.id}`)
-					.attr("class", "node")
-					.on("click", function (event) {
-						dispatch({ target: this, id: Number(this.id), event })
-					})
 					.on("mouseover", (event, d) => {
 						d3.select(".tooltip").style("visibility", "visible")
 						d3.select(".tooltip-title").text(d.title)
@@ -109,12 +100,21 @@ export const ForceLayout = ({
 					.on("mousemove", (event, d) =>
 						d3
 							.select(".tooltip")
-							.style("top", `${event.pageY + 10}px`)
+							.style("top", `${event.pageY - 10}px`)
 							.style("left", `${event.pageX + 10}px`)
 					)
 					.on("mouseout", (event, d) => {
 						d3.select(".tooltip").style("visibility", "hidden")
 					})
+
+				const group = nodes
+					.enter()
+					.append("g")
+					.attr("id", (d) => `group-${d.id}`)
+					.attr("class", "node")
+					// .on("click", function (event) {
+					// 	dispatch({ target: this, id: Number(this.id), event })
+					// })
 					.call(
 						d3
 							.drag()
