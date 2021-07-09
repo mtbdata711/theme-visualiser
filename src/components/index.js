@@ -71,12 +71,15 @@ const StyledBox = styled.div`
 	}
 `
 
-export const Flex = ({ children, ...styles }) => (
-	<StyledFlex styles={styles}>{children}</StyledFlex>
+export const Flex = ({ children, className, ...styles }) => (
+	<StyledFlex className={className} styles={styles}>
+		{children}
+	</StyledFlex>
 )
 
 const StyledFlex = styled.div`
 	display: flex;
+	justify-content: ${(p) => p.styles.justifyContent ?? null};
 
 	@media ${device.mobile} {
 		padding: ${(p) => theme.spaces[p.styles.padding[0]]};
@@ -183,7 +186,6 @@ export const GraphWrapper = ({ children, width, height }) => {
 const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
-	border: 1px solid white;
 
 	& svg g:hover {
 		cursor: grab;

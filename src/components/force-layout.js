@@ -15,8 +15,8 @@ export const ForceLayout = ({
 }) => {
 	// https://bl.ocks.org/mbostock/0adcc447925ffae87975a3a81628a196
 	const links = [
-		{ source: 18, target: 1 },
-		{ source: 18, target: 12 },
+		{ source: 19, target: 1 },
+		{ source: 19, target: 12 },
 		{ source: 1, target: 12 },
 	]
 
