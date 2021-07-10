@@ -1,6 +1,4 @@
-import React from "react"
 import styled from "styled-components"
-
 import { theme, device, colours } from "../styles/index"
 
 export const Header = ({ children, ...styles }) => (

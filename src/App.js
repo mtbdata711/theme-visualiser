@@ -1,13 +1,24 @@
-import React from "react"
+import { useReducer } from "react"
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
 import { UALLogo, Header, Nav, Main, Flex, Title, Subtitle } from "./components"
-import { reducer } from "./helpers/"
+import { reducer } from "./helpers"
 import { data } from "./data"
 // import { size } from "./styles"
 
+/**
+ * This is the main page that holds all the components of the app.
+ *
+ * App does the following:
+ * - It keeps track of the selected themes (activeNodes) through a useReducer method,
+ *	 the reducer method is defined in the helpers file (helpers/index.js).
+ * - App imports the functional components used on the page; these are
+ *   SelectBox and ForceLayout.
+ * - App imports the styled components from the components file (components/index.js),
+ *   and renders these on the page.
+ */
 export const App = () => {
-	const [activeNodes, dispatch] = React.useReducer(reducer, [])
+	const [activeNodes, dispatch] = useReducer(reducer, [])
 	// const [windowSize, setWindowSize] = React.useState({
 	// 	width: 400,
 	// 	height: 400,

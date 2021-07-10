@@ -1,10 +1,14 @@
-import React from "react"
+import { useEffect } from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "./index"
-import { truncate, formatWeight, halfDistance } from "../helpers/"
+import { truncate, formatWeight, halfDistance } from "../helpers"
 import { colours } from "../styles/index"
 
+/**
+ * Force-layout component that holds all logic of positioning the
+ * nodes in a cartesian coordinate system using d3.js.
+ */
 export const ForceLayout = ({
 	width,
 	height,
@@ -20,7 +24,14 @@ export const ForceLayout = ({
 		{ source: 1, target: 12 },
 	]
 
-	React.useEffect(() => {
+	/**
+	 * This effect-hook appends the entire d3 graph to the body element.
+	 */
+	useEffect(() => {
+		/**
+		 * The tooltip is a div element that holds three <p> elements
+		 * all having a unique class.
+		 */
 		const tooltip = d3
 			.select("body")
 			.append("div")
@@ -32,6 +43,13 @@ export const ForceLayout = ({
 		tooltip.append("p").attr("class", "tooltip-label")
 		tooltip.append("p").attr("class", "tooltip-cta")
 
+		/**
+		 * The links are the lines that function as connections
+		 * between the force layout nodes (the intersections).
+		 * Since we want to render both lines and circles (the buttons)
+		 * we declare the link as a group-element (<g>) so we can append
+		 * both a line and a button to the link group.
+		 */
 		const link = d3
 			.select("#force-layout")
 			.selectAll(".link")
@@ -40,11 +58,21 @@ export const ForceLayout = ({
 			.append("g")
 			.attr("class", "link")
 
+		/**
+		 * This is the line of the link
+		 */
 		const line = link
 			.append("line")
 			.attr("class", "line")
 			.attr("stroke-width", 2)
+			.attr("stroke", colours.orange)
 
+		/**
+		 * This is the button (circle) of the link. Also carrying the
+		 * functionality of tooltip-content and an on-click method that
+		 * redirects the user to the graduate showcase page with the
+		 * corresponding search queries.
+		 */
 		const button = link
 			.append("circle")
 			.attr("class", "button")
@@ -76,6 +104,13 @@ export const ForceLayout = ({
 				d3.select(event.target).attr("stroke", colours.orange)
 			})
 
+		/**
+		 * The simulation holds all of the force layout logic. In here,
+		 * the force is set to the centerpoint of the graph and a collision
+		 * is set to be equal to the radius of each node plus a little margin
+		 * (or whitespace) set equal to 10. Furthermore, the distance of the links
+		 * is a fixed constant that is set to 300.
+		 */
 		const simulation = d3
 			.forceSimulation(data)
 			.force("charge", d3.forceManyBody().strength(20))
@@ -93,6 +128,17 @@ export const ForceLayout = ({
 					.distance(300)
 			)
 			.on("tick", () => {
+				/**
+				 * Admittedly, calling all these changes on every tick is not the
+				 * most efficient way of updating the information of the nodes.
+				 * But using D3 imperitavely like this shouldn't have a very large
+				 * impact on the performance.
+				 *
+				 * For every entry in the data a node is appended. A node is a
+				 * group element that holds a className of "node". Instead of
+				 * directly rendering circles in the force-layout, we render
+				 * group elements with a transform-translate attribute.
+				 */
 				const nodes = d3
 					.select("#force-layout")
 					.selectAll(".node")
@@ -139,20 +185,40 @@ export const ForceLayout = ({
 							})
 					)
 
+				/**
+				 * Because the groups will move based on the force layout logic,
+				 * we reset its position on every tick back to (0, 0).
+				 */
 				link.attr("transform", (d) => `translate(0, 0)`)
 
+				/**
+				 * The buttons are positioned halfway between the source-
+				 * and target-positions.
+				 */
 				button.attr("transform", (d) => {
 					const { x, y } = halfDistance(d.source, d.target)
 					return `translate(${x}, ${y})`
 				})
 
+				/**
+				 * The lines move dynamically with the positions of the nodes
+				 * in the force layout graph.
+				 */
 				line
 					.attr("x1", (d) => d.source.x)
 					.attr("y1", (d) => d.source.y)
 					.attr("x2", (d) => d.target.x)
 					.attr("y2", (d) => d.target.y)
-					.attr("stroke", colours.orange)
 
+				/**
+				 * Every group holds both a circle and a text. The circle
+				 * holds a radius-attribute to show the weight of the theme
+				 * (based off the data).
+				 *
+				 * The text element functions as a label and shows the title
+				 * of the theme. This title is positioned in the centre of the circle
+				 * and the text is returned from a truncate function.
+				 */
 				group
 					.append("circle")
 					.attr("r", (d) => formatWeight(d.weight))

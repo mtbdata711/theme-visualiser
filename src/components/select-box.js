@@ -1,12 +1,27 @@
-import React from "react"
+import { useState } from "react"
 import { SelectWrapper, Box, Title, Label, Flex } from "./index"
 import { colours, size } from "../styles"
 import { useWindowSize } from "../helpers/useWindowSize"
 
+/**
+ * The Select Box component renders the menu that holds the
+ * checkboxes for the themes and allows the user to select themes.
+ * This component uses the dispatch function to pass
+ * the selected themes (activeNodes) upstream (back to App.js)
+ * so that this updates the selected nodes in the force layout
+ * graph.
+ *
+ * When the screen size is that of a tablet or mobile, a menu-button
+ * is rendered in the top of the select-box. Indicating that the user
+ * can toggle this button to view or hide the menu.
+ *
+ * The options are sorted based on weight (descending, or high-to-low),
+ * and for each option a checkbox and label are rendered.
+ */
 export const SelectBox = ({ options, dispatch, activeNodes }) => {
 	const { width } = useWindowSize()
 	const isTablet = width < size.laptop
-	const [showMenu, setShowMenu] = React.useState(false)
+	const [showMenu, setShowMenu] = useState(false)
 
 	return (
 		<Flex
@@ -28,6 +43,7 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 					)}
 				</Flex>
 			</Box>
+
 			<SelectWrapper
 				width={["100%", "300px", null]}
 				height={["100%", "55vh", null]}
@@ -59,7 +75,6 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 										})
 									}
 								/>
-								<span className="checkbox-custom"></span>
 								<span className="checkbox-label">{`${option.title} (${option.weight})`}</span>
 							</Label>
 						))}
@@ -69,6 +84,9 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 	)
 }
 
+/**
+ * Menu-button component that is only rendered on mobile and tablet.
+ */
 const MenuButton = ({ showMenu, setShowMenu }) => (
 	<button onClick={() => setShowMenu(!showMenu)} className="menu-toggle">
 		<Box backgroundColor={colours.white} padding={[1, null]}>
