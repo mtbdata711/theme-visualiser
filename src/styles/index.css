@@ -57,7 +57,7 @@ body {
 }
 
 .select-box-show {
-	transform: translateY(-70vh);
+	transform: translateY(-65vh);
 	transition: 0.2s;
 }
 

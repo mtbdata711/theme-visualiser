@@ -187,11 +187,11 @@ const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
 
-	& svg g:hover {
+	& svg .node:hover {
 		cursor: grab;
 	}
 
-	& svg g:active {
+	& svg .node:active {
 		cursor: grabbing;
 	}
 

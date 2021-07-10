@@ -4,14 +4,27 @@ import { ForceLayout } from "./components/force-layout"
 import { UALLogo, Header, Nav, Main, Flex, Title, Subtitle } from "./components"
 import { reducer } from "./helpers/"
 import { data } from "./data"
-import { size } from "./styles"
+// import { size } from "./styles"
 
 export const App = () => {
 	const [activeNodes, dispatch] = React.useReducer(reducer, [])
+	// const [windowSize, setWindowSize] = React.useState({
+	// 	width: 400,
+	// 	height: 400,
+	// })
 
-	const isTablet = window.innerWidth <= size.laptop
-	const width = isTablet ? window.innerWidth - 50 : (3 / 4) * window.innerWidth
-	const height = (2 / 3) * window.innerHeight
+	// React.useEffect(() => {
+	// 	function handleResize() {
+	// 		setWindowSize({
+	// 			width: window.innerWidth,
+	// 			height: window.innerHeight,
+	// 		})
+	// 	}
+
+	// 	window.addEventListener("resize", handleResize)
+	// 	handleResize()
+	// 	return () => window.removeEventListener("resize", handleResize)
+	// }, [])
 
 	return (
 		<>
@@ -36,8 +49,8 @@ export const App = () => {
 						activeNodes={activeNodes}
 					/>
 					<ForceLayout
-						width={width}
-						height={height}
+						width={1000}
+						height={500}
 						data={data}
 						dispatch={dispatch}
 						activeNodes={activeNodes}

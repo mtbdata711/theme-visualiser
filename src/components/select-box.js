@@ -8,8 +8,6 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 	const isTablet = width < size.laptop
 	const [showMenu, setShowMenu] = React.useState(false)
 
-	console.log(showMenu)
-
 	return (
 		<Flex
 			padding={[null]}
