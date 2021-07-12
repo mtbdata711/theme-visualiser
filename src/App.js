@@ -1,10 +1,11 @@
 import { useReducer } from "react"
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
-import { UALLogo, Header, Nav, Main, Flex, Title, Subtitle } from "./components"
+import { UALLogo, Header, Main, Title, Box, Flex } from "./components"
 import { reducer } from "./helpers"
+import { useWindowSize } from "./helpers/useWindowSize"
 import { data } from "./data"
-// import { size } from "./styles"
+import { size } from "./styles"
 
 /**
  * This is the main page that holds all the components of the app.
@@ -19,23 +20,8 @@ import { data } from "./data"
  */
 export const App = () => {
 	const [activeNodes, dispatch] = useReducer(reducer, [])
-	// const [windowSize, setWindowSize] = React.useState({
-	// 	width: 400,
-	// 	height: 400,
-	// })
-
-	// React.useEffect(() => {
-	// 	function handleResize() {
-	// 		setWindowSize({
-	// 			width: window.innerWidth,
-	// 			height: window.innerHeight,
-	// 		})
-	// 	}
-
-	// 	window.addEventListener("resize", handleResize)
-	// 	handleResize()
-	// 	return () => window.removeEventListener("resize", handleResize)
-	// }, [])
+	const windowSize = useWindowSize()
+	const isTablet = windowSize.width < size.laptop
 
 	return (
 		<>
@@ -44,10 +30,12 @@ export const App = () => {
 			</Header>
 
 			<Main>
-				<Nav padding={[2, 3, 4]}>
-					<Subtitle fontSize={[0, 1, 2]}>Graduation Showcase</Subtitle>
+				<Box padding={[2, 3, 4]}>
+					<Title fontSize={[0, 1, 2]} fontWeight={600}>
+						Graduation Showcase
+					</Title>
 					<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
-				</Nav>
+				</Box>
 
 				<Flex
 					padding={[2, 3, 4]}
@@ -59,9 +47,10 @@ export const App = () => {
 						dispatch={dispatch}
 						activeNodes={activeNodes}
 					/>
+
 					<ForceLayout
-						width={1000}
-						height={500}
+						width={isTablet ? window.innerWidth - 40 : window.innerWidth - 400}
+						height={0.65 * window.innerHeight}
 						data={data}
 						dispatch={dispatch}
 						activeNodes={activeNodes}

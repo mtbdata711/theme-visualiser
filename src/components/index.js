@@ -21,26 +21,6 @@ const StyledHeader = styled.header`
 	}
 `
 
-export const Nav = ({ children, ...styles }) => (
-	<StyledNav styles={styles}>{children}</StyledNav>
-)
-
-const StyledNav = styled.nav`
-	color: ${() => colours.white};
-
-	@media ${device.mobile} {
-		padding: ${(p) => theme.spaces[p.styles.padding[0]]};
-	}
-
-	@media ${device.laptop} {
-		padding: ${(p) => theme.spaces[p.styles.padding[1]]};
-	}
-
-	@media ${device.desktop} {
-		padding: ${(p) => theme.spaces[p.styles.padding[2]]};
-	}
-`
-
 export const Main = ({ children, ...styles }) => (
 	<StyledMain styles={styles}>{children}</StyledMain>
 )
@@ -104,6 +84,7 @@ export const Title = ({ children, ...styles }) => (
 const StyledTitle = styled.h1`
 	color: ${() => colours.white};
 	margin: 0;
+	font-weight: ${(p) => p.fontWeight ?? "auto"};
 
 	@media ${device.mobile} {
 		font-size: ${(p) => theme.sizes[p.styles.fontSize[0]]};
@@ -116,37 +97,6 @@ const StyledTitle = styled.h1`
 	@media ${device.desktop} {
 		font-size: ${(p) => theme.sizes[p.styles.fontSize[2]]};
 	}
-`
-
-export const Subtitle = ({ children, ...styles }) => (
-	<StyledSubtitle styles={styles}>{children}</StyledSubtitle>
-)
-
-const StyledSubtitle = styled.h2`
-	color: inherit;
-	margin: 0;
-	font-weight: 600;
-
-	@media ${device.mobile} {
-		font-size: ${(p) => theme.sizes[p.styles.fontSize[0]]};
-	}
-
-	@media ${device.laptop} {
-		font-size: ${(p) => theme.sizes[p.styles.fontSize[1]]};
-	}
-
-	@media ${device.desktop} {
-		font-size: ${(p) => theme.sizes[p.styles.fontSize[2]]};
-	}
-`
-
-export const Text = ({ children, ...styles }) => (
-	<StyledText styles={styles}>{children}</StyledText>
-)
-
-const StyledText = styled.p`
-	color: ${() => colours.white};
-	margin: 0;
 `
 
 export const SelectWrapper = ({ children, ...styles }) => {
@@ -154,8 +104,10 @@ export const SelectWrapper = ({ children, ...styles }) => {
 }
 
 const StyledSelectWrapper = styled.div`
-	background-color: ${() => colours.black};
+	background-color: ${() => colours.dark[1]};
 	overflow: scroll;
+	border-top: ${() => `1px solid ${colours.white}`};
+	border-bottom: ${() => `1px solid ${colours.white}`};
 
 	@media ${device.mobile} {
 		width: ${(p) => p.styles.width[0]};

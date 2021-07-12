@@ -86,10 +86,10 @@ export const ForceLayout = ({
 			)
 			.on("mouseover", (event, d) => {
 				d3.select(".tooltip").style("visibility", "visible")
-				d3.select(".tooltip-title").text(`This is the intersection of:`)
-				d3.select(".tooltip-label").text(
-					`${d.source.title} and ${d.target.title}`
+				d3.select(".tooltip-title").text(
+					`This is the intersection of: ${d.source.title} and ${d.target.title}`
 				)
+				d3.select(".tooltip-label").text(null)
 				d3.select(".tooltip-cta").text("Click to explore these projects")
 				d3.select(event.target).attr("stroke", colours.white)
 			})
@@ -144,21 +144,6 @@ export const ForceLayout = ({
 					.selectAll(".node")
 					.data(data)
 					.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-					.on("mouseover", (event, d) => {
-						d3.select(".tooltip").style("visibility", "visible")
-						d3.select(".tooltip-cta").text(null)
-						d3.select(".tooltip-title").text(d.title)
-						d3.select(".tooltip-label").text(d.weight)
-					})
-					.on("mousemove", (event, d) =>
-						d3
-							.select(".tooltip")
-							.style("top", `${event.pageY + 10}px`)
-							.style("left", `${event.pageX + 10}px`)
-					)
-					.on("mouseout", (event, d) => {
-						d3.select(".tooltip").style("visibility", "hidden")
-					})
 
 				const group = nodes
 					.enter()
@@ -184,6 +169,27 @@ export const ForceLayout = ({
 								event.subject.fy = null
 							})
 					)
+					.on("mouseover", (event, d) => {
+						d3.select(".tooltip").style("visibility", "visible")
+						d3.select(".tooltip-title").text(d.title)
+						d3.select(".tooltip-label").text(`${d.weight} projects`)
+						d3.select(".tooltip-cta").text("Click to connect two themes")
+					})
+					.on("mousemove", (event, d) =>
+						d3
+							.select(".tooltip")
+							.style("top", `${event.pageY + 10}px`)
+							.style("left", `${event.pageX + 10}px`)
+					)
+					.on("mouseout", () => {
+						d3.select(".tooltip").style("visibility", "hidden")
+					})
+					.on("click", function (event, d) {
+						dispatch({
+							target: this,
+							id: Number(event.target.id),
+						})
+					})
 
 				/**
 				 * Because the groups will move based on the force layout logic,

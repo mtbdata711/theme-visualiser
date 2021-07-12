@@ -36,6 +36,7 @@ const select = (target) => {
 		target.type === "checkbox"
 			? d3.select(`#group-${target.id}`)._groups[0][0].children
 			: target.children
+
 	circle.setAttribute("fill", colours.orange)
 	circle.setAttribute("stroke", colours.orange)
 	text.setAttribute("fill", colours.dark[1])
@@ -78,7 +79,7 @@ export const truncate = (text, radius, f = 8) =>
  * @param {*} weight
  * @param {*} f
  */
-export const formatWeight = (weight, f = 10) => weight / f
+export const formatWeight = (weight, f = 12) => weight / f
 
 /**
  * Distance method to calculate the position of the intersection-
