@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "./index"
-import { truncate, formatWeight, halfDistance } from "../helpers"
+import { formatWeight, halfDistance } from "../helpers"
 import { colours } from "../styles/index"
 
 /**
@@ -148,7 +148,7 @@ export const ForceLayout = ({
 				const group = nodes
 					.enter()
 					.append("g")
-					.attr("id", (d) => `group-${d.id}`)
+					.attr("id", (d) => d.id)
 					.attr("class", "node")
 					.call(
 						d3
@@ -186,9 +186,15 @@ export const ForceLayout = ({
 					})
 					.on("click", function (event, d) {
 						dispatch({
-							target: this,
-							id: Number(event.target.id),
+							id: Number(this.id),
 						})
+
+						// console.log(this.firstChild.attributes.fill.value)
+						// if (this.firstChild.attributes.fill.value === colours.dark[1]) {
+						// 	this.firstChild.setAttribute("fill", colours.orange)
+						// } else {
+						// 	this.firstChild.setAttribute("fill", colours.dark[1])
+						// }
 					})
 
 				/**
@@ -232,6 +238,7 @@ export const ForceLayout = ({
 					.attr("fill", colours.dark[1])
 					.attr("stroke", colours.white)
 					.attr("stroke-width", 2)
+					.attr("stroke-opacity", 0.3)
 
 				group
 					.append("text")
@@ -240,10 +247,23 @@ export const ForceLayout = ({
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline", "middle")
 					.attr("class", "title")
-					.text((d) => truncate(d.title, formatWeight(d.weight)))
+					.text((d) => d.title)
 			})
 		// eslint-disable-next-line
-	}, [data, width, height, activeNodes])
+	}, [data, width, height])
+
+	useEffect(() => {
+		if (activeNodes.length === 0) {
+			d3.select("#force-layout")
+				.selectAll("circle")
+				.attr("fill", colours.dark[1])
+			return
+		}
+		d3.select("#force-layout")
+			.selectAll("circle")
+			.filter((d) => activeNodes.includes(d.id))
+			.attr("fill", colours.orange)
+	}, [activeNodes])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>

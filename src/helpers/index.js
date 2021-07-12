@@ -1,5 +1,5 @@
-import * as d3 from "d3"
-import { colours } from "../styles/index"
+// import * as d3 from "d3"
+// import { colours } from "../styles/index"
 
 /**
  * Reducer method that takes the ID of the selected node (theme)
@@ -13,10 +13,8 @@ export const reducer = (ids, action) => {
 
 	switch (type) {
 		case "ADD":
-			select(action.target)
 			return [...ids, action.id]
 		case "REMOVE":
-			deselect(action.target)
 			return [...ids.slice(0, idx), ...ids.slice(idx + 1)]
 		default:
 			throw new Error()
@@ -31,16 +29,16 @@ export const reducer = (ids, action) => {
  * active state, showing the user this theme is now selected.
  * @param {*} target
  */
-const select = (target) => {
-	const [circle, text] =
-		target.type === "checkbox"
-			? d3.select(`#group-${target.id}`)._groups[0][0].children
-			: target.children
+// const select = (target) => {
+// 	const [circle, text] =
+// 		target.type === "checkbox"
+// 			? d3.select(`#group-${target.id}`)._groups[0][0].children
+// 			: target.children
 
-	circle.setAttribute("fill", colours.orange)
-	circle.setAttribute("stroke", colours.orange)
-	text.setAttribute("fill", colours.dark[1])
-}
+// 	circle.setAttribute("fill", colours.orange)
+// 	circle.setAttribute("stroke", colours.orange)
+// 	text.setAttribute("fill", colours.dark[1])
+// }
 
 /**
  * Deselect function that works similar to the Select function
@@ -49,15 +47,15 @@ const select = (target) => {
  * it style back to its default state.
  * @param {*} target
  */
-const deselect = (target) => {
-	const [circle, text] =
-		target.type === "checkbox"
-			? d3.select(`#group-${target.id}`)._groups[0][0].children
-			: target.children
-	circle.setAttribute("fill", colours.dark[1])
-	circle.setAttribute("stroke", colours.white)
-	text.setAttribute("fill", colours.white)
-}
+// const deselect = (target) => {
+// 	const [circle, text] =
+// 		target.type === "checkbox"
+// 			? d3.select(`#group-${target.id}`)._groups[0][0].children
+// 			: target.children
+// 	circle.setAttribute("fill", colours.dark[1])
+// 	circle.setAttribute("stroke", colours.white)
+// 	text.setAttribute("fill", colours.white)
+// }
 
 /**
  * Truncation method that takes a text, a radius (or half-width)
@@ -69,8 +67,8 @@ const deselect = (target) => {
  * @param {*} radius
  * @param {*} f
  */
-export const truncate = (text, radius, f = 8) =>
-	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
+// export const truncate = (text, radius, f = 8) =>
+// 	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
 
 /**
  * Formatting method that returns the size of a circle in the

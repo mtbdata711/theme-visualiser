@@ -1,6 +1,5 @@
-// import { useState } from "react"
+// import { useEffect } from "react"
 import { SelectWrapper, Box, Title, Label } from "./index"
-// import { useWindowSize } from "../helpers/useWindowSize"
 
 /**
  * The Select Box component renders the menu that holds the
