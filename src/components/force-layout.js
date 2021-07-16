@@ -140,6 +140,7 @@ export const ForceLayout = ({
 				.attr("class", "title")
 				.text((d) => d.title)
 		})
+		// eslint-disable-next-line
 	}, [data, width, height])
 
 	useEffect(() => {
