@@ -12,7 +12,7 @@ import { SelectWrapper, Box, Title, Label } from "./index"
  * is rendered in the top of the select-box. Indicating that the user
  * can toggle this button to view or hide the menu.
  *
- * The options are sorted based on weight (descending, or high-to-low),
+ * The options are sorted based on total (descending, or high-to-low),
  * and for each option a checkbox and label are rendered.
  */
 export const SelectBox = ({ options, dispatch, activeNodes }) => {
@@ -21,12 +21,12 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 			width={["100%", "300px", null]}
 			height={["100%", "65vh", null]}
 		>
-			<Title fontSize={[0, 1, 2]} fontWeight={600}>
+			<Title fontSize={[0, 1, 2]} fonttotal={600}>
 				Select themes
 			</Title>
 			<Box padding={[null]}>
 				{options
-					.sort((a, b) => b.weight - a.weight)
+					.sort((a, b) => b.total - a.total)
 					.map((option) => (
 						<Label
 							htmlFor={option.id}
@@ -50,7 +50,7 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 									})
 								}
 							/>
-							<span className="checkbox-label">{`${option.title} (${option.weight})`}</span>
+							<span className="checkbox-label">{`${option.title} (${option.total})`}</span>
 						</Label>
 					))}
 			</Box>
