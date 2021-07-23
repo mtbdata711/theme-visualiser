@@ -187,3 +187,27 @@ export const UALLogo = () => (
 		></path>
 	</svg>
 )
+
+export const LoadingBox = ({ ...styles }) => (
+	<StyledLoadingBox styles={styles}>Loading…</StyledLoadingBox>
+)
+
+const StyledLoadingBox = styled.div`
+	width: 100%;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: ${() => colours.white};
+	animation: pulse 1s linear infinite alternate;
+
+	@keyframes pulse {
+		from {
+			background-color: ${() => colours.dark[3]};
+		}
+
+		to {
+			background-color: ${() => colours.dark[1]};
+		}
+	}
+`

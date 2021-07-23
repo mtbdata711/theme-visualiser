@@ -1,7 +1,15 @@
 import { useReducer, useState, useEffect } from "react"
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
-import { UALLogo, Header, Main, Title, Box, Flex } from "./components"
+import {
+	UALLogo,
+	Header,
+	Main,
+	LoadingBox,
+	Title,
+	Box,
+	Flex,
+} from "./components"
 import { reducer } from "./helpers"
 import { useWindowSize } from "./helpers/useWindowSize"
 import { size } from "./styles"
@@ -18,10 +26,10 @@ import { size } from "./styles"
  *   and renders these on the page.
  */
 export const App = () => {
-	const [activeNodes, dispatch] = useReducer(reducer, [])
 	const [data, setData] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+	const [activeNodes, dispatch] = useReducer(reducer, [])
 	const windowSize = useWindowSize()
 	const isTablet = windowSize.width < size.laptop
 
@@ -37,20 +45,6 @@ export const App = () => {
 			.catch((error) => setError(error))
 			.finally(() => setLoading(false))
 	}, [])
-
-	if (loading)
-		return (
-			<>
-				<p>loading...</p>
-			</>
-		)
-
-	if (error)
-		return (
-			<>
-				<p>error</p>
-			</>
-		)
 
 	return (
 		<>
@@ -71,19 +65,26 @@ export const App = () => {
 					flexDirection={["column-reverse", "row"]}
 					gap={[2, 3, 4]}
 				>
-					<SelectBox
-						options={data}
-						dispatch={dispatch}
-						activeNodes={activeNodes}
-					/>
+					{loading && <LoadingBox />}
+					{!loading && !error && (
+						<>
+							<SelectBox
+								options={data}
+								dispatch={dispatch}
+								activeNodes={activeNodes}
+							/>
 
-					<ForceLayout
-						width={isTablet ? window.innerWidth - 40 : window.innerWidth - 400}
-						height={0.65 * window.innerHeight}
-						data={data}
-						dispatch={dispatch}
-						activeNodes={activeNodes}
-					/>
+							<ForceLayout
+								width={
+									isTablet ? window.innerWidth - 40 : window.innerWidth - 400
+								}
+								height={0.65 * window.innerHeight}
+								data={data}
+								dispatch={dispatch}
+								activeNodes={activeNodes}
+							/>
+						</>
+					)}
 				</Flex>
 			</Main>
 		</>
