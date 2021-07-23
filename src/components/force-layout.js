@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "./index"
-import { formatWeight, halfDistance } from "../helpers"
+import { formatWeight, halfDistance, truncate } from "../helpers"
 import { colours } from "../styles/index"
 
 /**
@@ -25,8 +25,6 @@ export const ForceLayout = ({
 			"collision",
 			d3.forceCollide().radius((d) => formatWeight(d.weight) + 10)
 		)
-
-	// const links = useMemo(() => {}, [])
 
 	/**
 	 * This effect-hook appends the entire d3 graph to the body element.
@@ -73,25 +71,25 @@ export const ForceLayout = ({
 				.append("g")
 				.attr("id", (d) => d.id)
 				.attr("class", "node")
-				.call(
-					d3
-						.drag()
-						.on("start", (event) => {
-							d3.select(".tooltip").style("visibility", "hidden")
-							if (!event.active) simulation.alphaTarget(0).restart()
-							event.subject.fx = event.subject.x
-							event.subject.fy = event.subject.y
-						})
-						.on("drag", (event) => {
-							event.subject.fx = event.x
-							event.subject.fy = event.y
-						})
-						.on("end", (event) => {
-							if (!event.active) simulation.alphaTarget(0)
-							event.subject.fx = null
-							event.subject.fy = null
-						})
-				)
+				// .call(
+				// 	d3
+				// 		.drag()
+				// 		.on("start", (event) => {
+				// 			d3.select(".tooltip").style("visibility", "hidden")
+				// 			if (!event.active) simulation.alphaTarget(0).restart()
+				// 			event.subject.fx = event.subject.x
+				// 			event.subject.fy = event.subject.y
+				// 		})
+				// 		.on("drag", (event) => {
+				// 			event.subject.fx = event.x
+				// 			event.subject.fy = event.y
+				// 		})
+				// 		.on("end", (event) => {
+				// 			if (!event.active) simulation.alphaTarget(0)
+				// 			event.subject.fx = null
+				// 			event.subject.fy = null
+				// 		})
+				// )
 				.on("mouseover", (event, d) => {
 					d3.select(".tooltip").style("visibility", "visible")
 					d3.select(".tooltip-title").text(d.title)
@@ -107,7 +105,7 @@ export const ForceLayout = ({
 				.on("mouseout", () => {
 					d3.select(".tooltip").style("visibility", "hidden")
 				})
-				.on("click", function (event, d) {
+				.on("click", function () {
 					dispatch({
 						id: Number(this.id),
 					})
@@ -138,7 +136,7 @@ export const ForceLayout = ({
 				.attr("text-anchor", "middle")
 				.attr("dominant-baseline", "middle")
 				.attr("class", "title")
-				.text((d) => d.title)
+				.text((d) => truncate(d.title, formatWeight(d.weight)))
 		})
 		// eslint-disable-next-line
 	}, [data, width, height])

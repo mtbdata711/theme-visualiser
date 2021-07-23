@@ -1,6 +1,3 @@
-// import * as d3 from "d3"
-// import { colours } from "../styles/index"
-
 /**
  * Reducer method that takes the ID of the selected node (theme)
  * and either adds or removes the ID to a state array.
@@ -22,42 +19,6 @@ export const reducer = (ids, action) => {
 }
 
 /**
- * Select function that sets the style of the target element;
- * when the user clicks on a checkbox in the select-box, this method
- * will target the node (group holding a circle and text) in the
- * force layout graph (svg), and change its style to represent an
- * active state, showing the user this theme is now selected.
- * @param {*} target
- */
-// const select = (target) => {
-// 	const [circle, text] =
-// 		target.type === "checkbox"
-// 			? d3.select(`#group-${target.id}`)._groups[0][0].children
-// 			: target.children
-
-// 	circle.setAttribute("fill", colours.orange)
-// 	circle.setAttribute("stroke", colours.orange)
-// 	text.setAttribute("fill", colours.dark[1])
-// }
-
-/**
- * Deselect function that works similar to the Select function
- * stated above, the only difference is that this method changes
- * the style to indicate that the theme is not selected; changing
- * it style back to its default state.
- * @param {*} target
- */
-// const deselect = (target) => {
-// 	const [circle, text] =
-// 		target.type === "checkbox"
-// 			? d3.select(`#group-${target.id}`)._groups[0][0].children
-// 			: target.children
-// 	circle.setAttribute("fill", colours.dark[1])
-// 	circle.setAttribute("stroke", colours.white)
-// 	text.setAttribute("fill", colours.white)
-// }
-
-/**
  * Truncation method that takes a text, a radius (or half-width)
  * of the node and a 'factor' variable that holds a default of 8.
  * When the length of the text exceeds that of a specified aspect
@@ -67,8 +28,8 @@ export const reducer = (ids, action) => {
  * @param {*} radius
  * @param {*} f
  */
-// export const truncate = (text, radius, f = 8) =>
-// 	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
+export const truncate = (text, radius, f = 6) =>
+	text.length > radius / f ? `${text.substring(0, radius / f)}…` : text
 
 /**
  * Formatting method that returns the size of a circle in the

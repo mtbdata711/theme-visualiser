@@ -1,4 +1,3 @@
-// import { useEffect } from "react"
 import { SelectWrapper, Box, Title, Label } from "./index"
 
 /**
@@ -58,28 +57,3 @@ export const SelectBox = ({ options, dispatch, activeNodes }) => {
 		</SelectWrapper>
 	)
 }
-
-/**
- * Menu-button component that is only rendered on mobile and tablet.
- */
-// const MenuButton = ({ showMenu, setShowMenu }) => (
-// 	<button onClick={() => setShowMenu(!showMenu)} className="menu-toggle">
-// 		<Box backgroundColor={colours.white} padding={[1, null]}>
-// 			<svg
-// 				width="16"
-// 				height="16"
-// 				viewBox="0 0 16 16"
-// 				fill="none"
-// 				xmlns="http://www.w3.org/2000/svg"
-// 				className={showMenu ? "menu-icon-up" : "menu-icon-down"}
-// 			>
-// 				<path
-// 					fillRule="evenodd"
-// 					clipRule="evenodd"
-// 					d="M0 8L1.41 9.41L7 3.83V16H9V3.83L14.58 9.42L16 8L8 0L0 8Z"
-// 					fill={colours.blue}
-// 				/>
-// 			</svg>
-// 		</Box>
-// 	</button>
-// )

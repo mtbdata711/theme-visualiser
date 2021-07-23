@@ -45,31 +45,3 @@ body {
 .selected {
 	font-weight: bold;
 }
-
-.menu-toggle {
-	padding: 0;
-	border-radius: 0px;
-	border: none;
-}
-
-.menu-toggle:hover {
-	cursor: pointer;
-}
-
-.select-box-show {
-	transform: translateY(-65vh);
-	transition: 0.2s;
-}
-
-.select-box-hide {
-	transition: 0.2s;
-}
-
-.menu-icon-up {
-	transform: rotate(180deg);
-	transition: 0.2s;
-}
-
-.menu-icon-down {
-	transition: 0.2s;
-}
