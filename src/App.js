@@ -27,7 +27,7 @@ export const App = () => {
 
 	useEffect(() => {
 		fetch(
-			"http://integrations.arts.ac.uk/showcase-staging/v2/public/api/data/sum_themes"
+			"https://integrations.arts.ac.uk/showcase-staging/v2/public/api/data/sum_themes"
 		)
 			.then((response) => {
 				if (response.ok) return response.json()
