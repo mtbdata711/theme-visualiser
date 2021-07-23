@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import * as d3 from "d3"
 
 import { GraphWrapper } from "./index"
-import { formatWeight, halfDistance, truncate } from "../helpers"
+import { formatWeight, halfDistance } from "../helpers"
 import { colours } from "../styles/index"
 
 /**
@@ -23,36 +23,27 @@ export const ForceLayout = ({
 		.force("center", d3.forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			d3.forceCollide().radius((d) => formatWeight(d.weight) + 10)
+			d3.forceCollide().radius((d) => formatWeight(d.total) + 10)
 		)
 
 	/**
-	 * This effect-hook appends the entire d3 graph to the body element.
+	 * The tooltip is a div element that holds three <p> elements
+	 * all having a unique class.
 	 */
+	const tooltip = d3
+		.select("body")
+		.append("div")
+		.attr("class", "tooltip")
+		.style("position", "absolute")
+		.style("visibility", "hidden")
+
+	tooltip.append("p").attr("class", "tooltip-title")
+	tooltip.append("p").attr("class", "tooltip-label")
+	tooltip.append("p").attr("class", "tooltip-cta")
+
+	console.log(activeNodes)
+
 	useEffect(() => {
-		/**
-		 * The tooltip is a div element that holds three <p> elements
-		 * all having a unique class.
-		 */
-		const tooltip = d3
-			.select("body")
-			.append("div")
-			.attr("class", "tooltip")
-			.style("position", "absolute")
-			.style("visibility", "hidden")
-
-		tooltip.append("p").attr("class", "tooltip-title")
-		tooltip.append("p").attr("class", "tooltip-label")
-		tooltip.append("p").attr("class", "tooltip-cta")
-
-		/**
-		 * The simulation holds all of the force layout logic. In here,
-		 * the force is set to the centerpoint of the graph and a collision
-		 * is set to be equal to the radius of each node plus a little margin
-		 * (or whitespace) set equal to 10. Furthermore, the distance of the links
-		 * is a fixed constant that is set to 300.
-		 */
-
 		simulation.on("tick", () => {
 			/**
 			 * For every entry in the data a node is appended. A node is a
@@ -71,29 +62,10 @@ export const ForceLayout = ({
 				.append("g")
 				.attr("id", (d) => d.id)
 				.attr("class", "node")
-				// .call(
-				// 	d3
-				// 		.drag()
-				// 		.on("start", (event) => {
-				// 			d3.select(".tooltip").style("visibility", "hidden")
-				// 			if (!event.active) simulation.alphaTarget(0).restart()
-				// 			event.subject.fx = event.subject.x
-				// 			event.subject.fy = event.subject.y
-				// 		})
-				// 		.on("drag", (event) => {
-				// 			event.subject.fx = event.x
-				// 			event.subject.fy = event.y
-				// 		})
-				// 		.on("end", (event) => {
-				// 			if (!event.active) simulation.alphaTarget(0)
-				// 			event.subject.fx = null
-				// 			event.subject.fy = null
-				// 		})
-				// )
 				.on("mouseover", (event, d) => {
 					d3.select(".tooltip").style("visibility", "visible")
 					d3.select(".tooltip-title").text(d.title)
-					d3.select(".tooltip-label").text(`${d.weight} projects`)
+					d3.select(".tooltip-label").text(`${d.total} projects`)
 					d3.select(".tooltip-cta").text("Click to connect two themes")
 				})
 				.on("mousemove", (event, d) =>
@@ -122,7 +94,7 @@ export const ForceLayout = ({
 			 */
 			group
 				.append("circle")
-				.attr("r", (d) => formatWeight(d.weight))
+				.attr("r", (d) => formatWeight(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
@@ -136,20 +108,16 @@ export const ForceLayout = ({
 				.attr("text-anchor", "middle")
 				.attr("dominant-baseline", "middle")
 				.attr("class", "title")
-				.text((d) => truncate(d.title, formatWeight(d.weight)))
+				.text((d) => d.title)
 		})
 		// eslint-disable-next-line
-	}, [data, width, height])
+	}, [data, width, height, activeNodes])
 
 	useEffect(() => {
-		if (activeNodes.length === 0) {
-			d3.select("#force-layout")
-				.selectAll("circle")
-				.attr("fill", colours.dark[1])
-			return
-		}
 		d3.select("#force-layout")
-			.selectAll("circle")
+			.selectAll(".node")
+			.select("circle")
+			.attr("fill", colours.dark[1])
 			.filter((d) => activeNodes.includes(d.id))
 			.attr("fill", colours.orange)
 
@@ -218,16 +186,8 @@ export const ForceLayout = ({
 						.distance(200)
 				)
 				.on("tick", () => {
-					/**
-					 * Because the groups will move based on the force layout logic,
-					 * we reset its position on every tick back to (0, 0).
-					 */
 					link.attr("transform", (d) => `translate(0, 0)`)
 
-					/**
-					 * The buttons are positioned halfway between the source-
-					 * and target-positions.
-					 */
 					button.attr("transform", (d) => {
 						const { x, y } = halfDistance(d.source, d.target)
 						return `translate(${x}, ${y})`
@@ -239,9 +199,10 @@ export const ForceLayout = ({
 						.attr("x2", (d) => d.target.x)
 						.attr("y2", (d) => d.target.y)
 				})
+		} else {
+			d3.select("#force-layout").selectAll(".link").remove()
 		}
-		// eslint-disable-next-line
-	}, [activeNodes])
+	}, [activeNodes, simulation])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>

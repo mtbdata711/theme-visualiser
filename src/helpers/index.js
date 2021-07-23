@@ -38,7 +38,7 @@ export const truncate = (text, radius, f = 6) =>
  * @param {*} weight
  * @param {*} f
  */
-export const formatWeight = (weight, f = 12) => weight / f
+export const formatWeight = (weight, f = 10) => weight / f
 
 /**
  * Distance method to calculate the position of the intersection-

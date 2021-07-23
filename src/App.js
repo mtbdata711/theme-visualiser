@@ -1,10 +1,9 @@
-import { useReducer } from "react"
+import { useReducer, useState, useEffect } from "react"
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
 import { UALLogo, Header, Main, Title, Box, Flex } from "./components"
 import { reducer } from "./helpers"
 import { useWindowSize } from "./helpers/useWindowSize"
-import { data } from "./data"
 import { size } from "./styles"
 
 /**
@@ -20,8 +19,38 @@ import { size } from "./styles"
  */
 export const App = () => {
 	const [activeNodes, dispatch] = useReducer(reducer, [])
+	const [data, setData] = useState(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState(null)
 	const windowSize = useWindowSize()
 	const isTablet = windowSize.width < size.laptop
+
+	useEffect(() => {
+		fetch(
+			"http://integrations.arts.ac.uk/showcase-staging/v2/public/api/data/sum_themes"
+		)
+			.then((response) => {
+				if (response.ok) return response.json()
+				throw response
+			})
+			.then((data) => setData(data))
+			.catch((error) => setError(error))
+			.finally(() => setLoading(false))
+	}, [])
+
+	if (loading)
+		return (
+			<>
+				<p>loading...</p>
+			</>
+		)
+
+	if (error)
+		return (
+			<>
+				<p>error</p>
+			</>
+		)
 
 	return (
 		<>
@@ -32,7 +61,7 @@ export const App = () => {
 			<Main>
 				<Box padding={[2, 3, 4]}>
 					<Title fontSize={[0, 1, 2]} fontWeight={600}>
-						Graduation Showcase
+						Graduate Showcase
 					</Title>
 					<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
 				</Box>
