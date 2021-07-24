@@ -23,7 +23,7 @@ export const ForceLayout = ({
 		.force("center", d3.forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			d3.forceCollide().radius((d) => formatWeight(d.total) + 10)
+			d3.forceCollide().radius((d) => formatWeight(d.title, d.total) + 10)
 		)
 
 	/**
@@ -94,7 +94,7 @@ export const ForceLayout = ({
 			 */
 			group
 				.append("circle")
-				.attr("r", (d) => formatWeight(d.total))
+				.attr("r", (d) => formatWeight(d.title, d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)

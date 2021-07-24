@@ -42,7 +42,10 @@ export const App = () => {
 				throw response
 			})
 			.then((data) => setData(data))
-			.catch((error) => setError(error))
+			.catch((error) => {
+				console.error(error)
+				setError(error)
+			})
 			.finally(() => setLoading(false))
 	}, [])
 
