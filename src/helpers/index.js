@@ -27,8 +27,9 @@ export const reducer = (ids, action) => {
  * @param {*} weight
  * @param {*} f
  */
-export const formatWeight = (value, f = 8) => {
+export const formatWeight = (value, f = 12) => {
 	const min = 40
+	// return 20
 	return d3.max([min, value / f])
 }
 
@@ -60,6 +61,7 @@ const vsub = (v1, v2) => [v1[0] - v2[0], v1[1] - v2[1]]
 const vscale = (v, f) => [v[0] * f, v[1] * f]
 const vnorm = (v) => [-v[1], v[0]]
 
+// https://gis.stackexchange.com/questions/104161/how-can-i-find-closest-point-on-a-polygon-from-a-point
 export const closestPointOnPolygon = (point, poly) => {
 	let shortestDist = Number.MAX_VALUE
 	let closestPointOnPoly = poly[0]
@@ -113,7 +115,7 @@ export const closestPointOnPolygon = (point, poly) => {
 }
 
 // https://bl.ocks.org/mbostock/7555321
-export function wrap(text, width) {
+export const wrap = (text, width) => {
 	text.each(function () {
 		let text = d3.select(this),
 			words = text.text().split(" ").reverse(),

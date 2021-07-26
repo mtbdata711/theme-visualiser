@@ -44,12 +44,10 @@ export const ForceLayout = ({
 				if (activeNodes.length > 2) {
 					const polygon = activeNodes.map((v) => [v.x, v.y])
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
-
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							d.total / 10)[0]
+							formatWeight(d.total))[1]
 				}
-
 				return d.x
 			})
 		)
@@ -59,12 +57,10 @@ export const ForceLayout = ({
 				if (activeNodes.length > 2) {
 					const polygon = activeNodes.map((v) => [v.x, v.y])
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
-
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							d.total / 10)[1]
+							formatWeight(d.total))[1]
 				}
-
 				return d.y
 			})
 		)
@@ -205,8 +201,12 @@ export const ForceLayout = ({
 					d3.select(event.target).attr("stroke", colours.dark[1])
 				})
 
-			const triangle = d3
+			const intersection = d3
 				.select("#force-layout")
+				.append("g")
+				.attr("class", "intersection")
+
+			const triangle = intersection
 				.append("polygon")
 				.attr("class", "triangle")
 				.attr("points", "-15,-15 15,-15 0,15")
@@ -214,12 +214,14 @@ export const ForceLayout = ({
 				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
 				.on("click", () => {
-					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${activeNodes[0].title}%C2%A0&%C2%A0${activeNodes[1].title}%C2%A0&%C2%A0${activeNodes[2].title}`
+					const [n1, n2, n3] = activeNodes
+					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
 				})
 				.on("mouseover", (event) => {
+					const [n1, n2, n3] = activeNodes
 					d3.select(".tooltip").style("visibility", "visible")
 					d3.select(".tooltip-title").text(
-						`This is the intersection of: ${activeNodes[0].title}, ${activeNodes[1].title} and ${activeNodes[2].title}`
+						`This is the intersection of: ${n1.title}, ${n2.title} and ${n3.title}`
 					)
 					d3.select(".tooltip-label").text(null)
 					d3.select(".tooltip-cta").text("Click to explore these projects")
@@ -235,6 +237,15 @@ export const ForceLayout = ({
 					d3.select(".tooltip").style("visibility", "hidden")
 					d3.select(event.target).attr("stroke", colours.dark[1])
 				})
+
+			const intersectionLine = intersection
+				.selectAll(".intersection-line")
+				.data(activeNodes)
+				.enter()
+				.append("line")
+				.attr("class", "intersection-line")
+				.attr("stroke-width", 2)
+				.attr("stroke", colours.orange)
 
 			simulation
 				.force(
@@ -254,12 +265,16 @@ export const ForceLayout = ({
 					})
 
 					if (activeIds?.length === 3) {
-						triangle.attr("transform", () => {
-							const polygon = activeNodes.map((v) => [v.x, v.y])
-							const { x, y } = triangleCentroid(polygon)
+						const polygon = activeNodes.map((v) => [v.x, v.y])
+						const { x, y } = triangleCentroid(polygon)
 
-							return `translate(${x}, ${y})`
-						})
+						intersectionLine
+							.attr("x1", (d) => d.x)
+							.attr("x2", x)
+							.attr("y1", (d) => d.y)
+							.attr("y2", y)
+
+						triangle.attr("transform", () => `translate(${x}, ${y})`)
 					}
 
 					line
@@ -268,9 +283,8 @@ export const ForceLayout = ({
 						.attr("x2", (d) => d.target.x)
 						.attr("y2", (d) => d.target.y)
 				})
-		} else {
-			d3.select("#force-layout").selectAll(".link").remove()
 		}
+
 		// eslint-disable-next-line
 	}, [activeIds, simulation])
 
