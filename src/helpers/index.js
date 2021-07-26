@@ -10,8 +10,6 @@ export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
 	const idx = ids.indexOf(action.id)
 
-	console.log(typeof action)
-
 	switch (type) {
 		case "ADD":
 			return [...ids, action.id]
@@ -47,6 +45,9 @@ export const triangleCentroid = (triangle) => {
 	return { x: cx, y: cy }
 }
 
+/**
+ * A bunch of helper functions needed for closestPointOnPolygon()
+ */
 const vlen = (v) => Math.sqrt(v[0] * v[0] + v[1] * v[1])
 const vnegate = (v) => [-v[0], -v[1]]
 const vadd = (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1]]

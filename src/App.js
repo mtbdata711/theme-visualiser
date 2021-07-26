@@ -1,4 +1,6 @@
 import { useReducer, useState, useEffect } from "react"
+import { motion } from "framer-motion"
+
 import { SelectBox } from "./components/select-box"
 import { ForceLayout } from "./components/force-layout"
 import {
@@ -9,6 +11,9 @@ import {
 	Title,
 	Box,
 	Flex,
+	Tooltip,
+	TooltipTitle,
+	TooltipLabel,
 } from "./components"
 import { reducer } from "./helpers"
 import { useWindowSize } from "./helpers/useWindowSize"
@@ -29,6 +34,8 @@ export const App = () => {
 	const [data, setData] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+
+	const [tooltip, setTooltip] = useState(null)
 	const [activeNodes, dispatch] = useReducer(reducer, [])
 	const windowSize = useWindowSize()
 	const isTablet = windowSize.width < size.laptop
@@ -48,6 +55,8 @@ export const App = () => {
 			})
 			.finally(() => setLoading(false))
 	}, [])
+
+	// console.log(tooltip)
 
 	return (
 		<>
@@ -85,10 +94,22 @@ export const App = () => {
 								data={data}
 								dispatch={dispatch}
 								activeNodes={activeNodes}
+								setTooltip={setTooltip}
 							/>
 						</>
 					)}
 				</Flex>
+
+				{tooltip && (
+					<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+						<Tooltip left={tooltip.x + 20} top={tooltip.y + 20}>
+							<TooltipLabel fontWeight={600}>{tooltip.type}</TooltipLabel>
+							<TooltipTitle>{tooltip.title}</TooltipTitle>
+							<TooltipLabel>{tooltip.total} projects</TooltipLabel>
+							<TooltipLabel>{tooltip.cta}</TooltipLabel>
+						</Tooltip>
+					</motion.div>
+				)}
 			</Main>
 		</>
 	)

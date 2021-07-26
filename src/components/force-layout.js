@@ -32,11 +32,14 @@ export const ForceLayout = ({
 	data,
 	dispatch,
 	activeNodes: activeIds,
+	setTooltip,
 	...styles
 }) => {
 	const activeNodes = useMemo(() => {
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
+
+	console.log(activeIds, activeNodes)
 
 	const scale = scaleLinear()
 		.domain([0, max(data.map((el) => el.total))])
@@ -76,20 +79,6 @@ export const ForceLayout = ({
 			})
 		)
 
-	/**
-	 * The tooltip is a div element that holds three <p> elements
-	 * all having a unique class.
-	 */
-	const tooltip = select("body")
-		.append("div")
-		.attr("class", "tooltip")
-		.style("position", "absolute")
-		.style("visibility", "hidden")
-
-	tooltip.append("p").attr("class", "tooltip-title")
-	tooltip.append("p").attr("class", "tooltip-label")
-	tooltip.append("p").attr("class", "tooltip-cta")
-
 	useEffect(() => {
 		simulation.on("tick", () => {
 			const nodes = select("#force-layout")
@@ -97,39 +86,33 @@ export const ForceLayout = ({
 				.data(data)
 				.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
 
-			const group = nodes
-				.enter()
-				.append("g")
-				.attr("id", (d) => d.id)
-				.attr("class", "node")
-				.on("mouseover", (event, d) => {
-					select(".tooltip").style("visibility", "visible")
-					select(".tooltip-title").text(d.title)
-					select(".tooltip-label").text(`${d.total} projects`)
-					select(".tooltip-cta").text("Click to connect two themes")
-				})
-				.on("mousemove", (event, d) =>
-					select(".tooltip")
-						.style("top", `${event.pageY + 10}px`)
-						.style("left", `${event.pageX + 10}px`)
-				)
-				.on("mouseout", () => {
-					select(".tooltip").style("visibility", "hidden")
-				})
-				.on("click", function () {
-					dispatch({
-						id: Number(this.id),
-					})
-				})
+			const group = nodes.enter().append("g").attr("class", "node")
 
 			group
 				.append("circle")
+				.attr("id", (d) => d.id)
 				.attr("r", (d) => scale(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
 				.attr("stroke-width", 2)
 				.attr("stroke-opacity", 0.3)
+				.on("mouseover", (_, d) =>
+					setTooltip({
+						title: d.title,
+						total: d.total,
+						x: d.x,
+						y: d.y,
+						type: "theme",
+						cta: "click to select the theme",
+					})
+				)
+				.on("mouseout", () => setTooltip(null))
+				.on("click", function () {
+					dispatch({
+						id: Number(this.id),
+					})
+				})
 
 			group
 				.append("text")
@@ -138,10 +121,10 @@ export const ForceLayout = ({
 				.attr("text-anchor", "middle")
 				.attr("dominant-baseline", "middle")
 				.text((d) => d.title)
-				.call(wrap, 10)
+				.call(wrap, 20)
 		})
 		// eslint-disable-next-line
-	}, [data, width, height, activeIds])
+	}, [data, width, height])
 
 	useEffect(() => {
 		select("#force-layout")
@@ -183,29 +166,26 @@ export const ForceLayout = ({
 				.attr("fill", colours.orange)
 				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
+				.on("mouseover", (event, d) => {
+					select(event.target).attr("stroke", colours.white)
+					setTooltip({
+						title: `${d.source.title} and ${d.target.title}`,
+						total: d.source.total + d.target.total,
+						x: event.clientX,
+						y: event.clientY,
+						type: "intersection",
+						cta: "click to explore this intersection",
+					})
+				})
+				.on("mouseout", (event) => {
+					select(event.target).attr("stroke", colours.dark[1])
+					setTooltip(null)
+				})
 				.on(
 					"click",
-					(event, d) =>
+					(_, d) =>
 						(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
 				)
-				.on("mouseover", (event, d) => {
-					select(".tooltip").style("visibility", "visible")
-					select(".tooltip-title").text(
-						`This is the intersection of: ${d.source.title} and ${d.target.title}`
-					)
-					select(".tooltip-label").text(null)
-					select(".tooltip-cta").text("Click to explore these projects")
-					select(event.target).attr("stroke", colours.white)
-				})
-				.on("mousemove", (event) =>
-					select(".tooltip")
-						.style("top", `${event.pageY + 10}px`)
-						.style("left", `${event.pageX + 10}px`)
-				)
-				.on("mouseout", (event) => {
-					select(".tooltip").style("visibility", "hidden")
-					select(event.target).attr("stroke", colours.dark[1])
-				})
 
 			const intersection = select("#force-layout")
 				.append("g")
@@ -218,28 +198,26 @@ export const ForceLayout = ({
 				.attr("fill", colours.orange)
 				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
+				.on("mouseover", (event, d) => {
+					select(event.target).attr("stroke", colours.white)
+					const [n1, n2, n3] = activeNodes
+
+					setTooltip({
+						title: `${n1.title}, ${n2.title} and ${n3.title}`,
+						total: n1.total + n2.total + n3.total,
+						x: event.clientX,
+						y: event.clientY,
+						type: "intersection",
+						cta: "click to explore this intersection",
+					})
+				})
+				.on("mouseout", (event) => {
+					select(event.target).attr("stroke", colours.dark[1])
+					setTooltip(null)
+				})
 				.on("click", () => {
 					const [n1, n2, n3] = activeNodes
 					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
-				})
-				.on("mouseover", (event) => {
-					const [n1, n2, n3] = activeNodes
-					select(".tooltip").style("visibility", "visible")
-					select(".tooltip-title").text(
-						`This is the intersection of: ${n1.title}, ${n2.title} and ${n3.title}`
-					)
-					select(".tooltip-label").text(null)
-					select(".tooltip-cta").text("Click to explore these projects")
-					select(event.target).attr("stroke", colours.white)
-				})
-				.on("mousemove", (event) =>
-					select(".tooltip")
-						.style("top", `${event.pageY + 10}px`)
-						.style("left", `${event.pageX + 10}px`)
-				)
-				.on("mouseout", (event) => {
-					select(".tooltip").style("visibility", "hidden")
-					select(event.target).attr("stroke", colours.dark[1])
 				})
 
 			const intersectionLine = intersection
@@ -261,8 +239,6 @@ export const ForceLayout = ({
 						.distance(200)
 				)
 				.on("tick", () => {
-					link.attr("transform", (d) => `translate(0, 0)`)
-
 					button.attr("transform", (d) => {
 						const { x, y } = halfDistance(d.source, d.target)
 						return `translate(${x}, ${y})`
