@@ -6,6 +6,7 @@ import { GraphWrapper } from "./index"
 import {
 	formatWeight,
 	halfDistance,
+	triangleCentroid,
 	closestPointOnPolygon,
 	wrap,
 } from "../helpers"
@@ -26,6 +27,8 @@ export const ForceLayout = ({
 	const activeNodes = useMemo(() => {
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
+
+	console.log(activeNodes)
 
 	const simulation = d3
 		.forceSimulation(data)
@@ -70,16 +73,16 @@ export const ForceLayout = ({
 	 * The tooltip is a div element that holds three <p> elements
 	 * all having a unique class.
 	 */
-	// const tooltip = d3
-	// 	.select("body")
-	// 	.append("div")
-	// 	.attr("class", "tooltip")
-	// 	.style("position", "absolute")
-	// 	.style("visibility", "hidden")
+	const tooltip = d3
+		.select("body")
+		.append("div")
+		.attr("class", "tooltip")
+		.style("position", "absolute")
+		.style("visibility", "hidden")
 
-	// tooltip.append("p").attr("class", "tooltip-title")
-	// tooltip.append("p").attr("class", "tooltip-label")
-	// tooltip.append("p").attr("class", "tooltip-cta")
+	tooltip.append("p").attr("class", "tooltip-title")
+	tooltip.append("p").attr("class", "tooltip-label")
+	tooltip.append("p").attr("class", "tooltip-cta")
 
 	useEffect(() => {
 		simulation.on("tick", () => {
@@ -175,6 +178,7 @@ export const ForceLayout = ({
 				.attr("class", "button")
 				.attr("r", 12)
 				.attr("fill", colours.orange)
+				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
 				.on(
 					"click",
@@ -190,15 +194,46 @@ export const ForceLayout = ({
 					d3.select(".tooltip-cta").text("Click to explore these projects")
 					d3.select(event.target).attr("stroke", colours.white)
 				})
-				.on("mousemove", (event, d) =>
+				.on("mousemove", (event) =>
 					d3
 						.select(".tooltip")
 						.style("top", `${event.pageY + 10}px`)
 						.style("left", `${event.pageX + 10}px`)
 				)
-				.on("mouseout", (event, d) => {
+				.on("mouseout", (event) => {
 					d3.select(".tooltip").style("visibility", "hidden")
-					d3.select(event.target).attr("stroke", colours.orange)
+					d3.select(event.target).attr("stroke", colours.dark[1])
+				})
+
+			const triangle = d3
+				.select("#force-layout")
+				.append("polygon")
+				.attr("class", "triangle")
+				.attr("points", "-15,-15 15,-15 0,15")
+				.attr("fill", colours.orange)
+				.attr("stroke", colours.dark[1])
+				.attr("stroke-width", 3)
+				.on("click", () => {
+					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${activeNodes[0].title}%C2%A0&%C2%A0${activeNodes[1].title}%C2%A0&%C2%A0${activeNodes[2].title}`
+				})
+				.on("mouseover", (event) => {
+					d3.select(".tooltip").style("visibility", "visible")
+					d3.select(".tooltip-title").text(
+						`This is the intersection of: ${activeNodes[0].title}, ${activeNodes[1].title} and ${activeNodes[2].title}`
+					)
+					d3.select(".tooltip-label").text(null)
+					d3.select(".tooltip-cta").text("Click to explore these projects")
+					d3.select(event.target).attr("stroke", colours.white)
+				})
+				.on("mousemove", (event) =>
+					d3
+						.select(".tooltip")
+						.style("top", `${event.pageY + 10}px`)
+						.style("left", `${event.pageX + 10}px`)
+				)
+				.on("mouseout", (event) => {
+					d3.select(".tooltip").style("visibility", "hidden")
+					d3.select(event.target).attr("stroke", colours.dark[1])
 				})
 
 			simulation
@@ -218,6 +253,15 @@ export const ForceLayout = ({
 						return `translate(${x}, ${y})`
 					})
 
+					if (activeIds?.length === 3) {
+						triangle.attr("transform", () => {
+							const polygon = activeNodes.map((v) => [v.x, v.y])
+							const { x, y } = triangleCentroid(polygon)
+
+							return `translate(${x}, ${y})`
+						})
+					}
+
 					line
 						.attr("x1", (d) => d.source.x)
 						.attr("y1", (d) => d.source.y)
@@ -227,6 +271,7 @@ export const ForceLayout = ({
 		} else {
 			d3.select("#force-layout").selectAll(".link").remove()
 		}
+		// eslint-disable-next-line
 	}, [activeIds, simulation])
 
 	return (

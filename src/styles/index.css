@@ -14,6 +14,7 @@ body {
 	background-color: #000;
 	visibility: hidden;
 	padding: 0.8rem;
+	max-width: 30em;
 }
 
 .tooltip-title,

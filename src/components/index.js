@@ -137,11 +137,9 @@ const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
 
-	& svg .node:hover {
-		cursor: pointer;
-	}
-
-	& svg .button:hover {
+	& svg .node:hover,
+	.triangle:hover,
+	.button:hover {
 		cursor: pointer;
 	}
 `

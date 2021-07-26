@@ -46,30 +46,21 @@ export const halfDistance = (v1, v2) => {
 	return { x: v1.x + vx, y: v1.y + vy }
 }
 
-function vlen(vector) {
-	return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1])
+export const triangleCentroid = (triangle) => {
+	var cx = (triangle[0][0] + triangle[1][0] + triangle[2][0]) / 3
+	var cy = (triangle[0][1] + triangle[1][1] + triangle[2][1]) / 3
+
+	return { x: cx, y: cy }
 }
 
-function vnegate(v) {
-	return [-v[0], -v[1]]
-}
+const vlen = (v) => Math.sqrt(v[0] * v[0] + v[1] * v[1])
+const vnegate = (v) => [-v[0], -v[1]]
+const vadd = (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1]]
+const vsub = (v1, v2) => [v1[0] - v2[0], v1[1] - v2[1]]
+const vscale = (v, f) => [v[0] * f, v[1] * f]
+const vnorm = (v) => [-v[1], v[0]]
 
-function vadd(v1, v2) {
-	return [v1[0] + v2[0], v1[1] + v2[1]]
-}
-
-function vsub(v1, v2) {
-	return [v1[0] - v2[0], v1[1] - v2[1]]
-}
-
-function vscale(vector, factor) {
-	return [vector[0] * factor, vector[1] * factor]
-}
-
-function vnorm(v) {
-	return [-v[1], v[0]]
-}
-export function closestPointOnPolygon(point, poly) {
+export const closestPointOnPolygon = (point, poly) => {
 	let shortestDist = Number.MAX_VALUE
 	let closestPointOnPoly = poly[0]
 
