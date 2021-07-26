@@ -1,15 +1,16 @@
 import { select } from "d3-selection"
-import { max } from "d3-array"
 
 /**
  * Reducer method that takes the ID of the selected node (theme)
  * and either adds or removes the ID to a state array.
- * @param {*} ids
- * @param {*} action
+ * @param {Array} ids
+ * @param {Object} action
  */
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
 	const idx = ids.indexOf(action.id)
+
+	console.log(typeof action)
 
 	switch (type) {
 		case "ADD":
@@ -22,24 +23,12 @@ export const reducer = (ids, action) => {
 }
 
 /**
- * Formatting method that returns the size of a circle in the
- * force layout graph. It takes a weight (as defined in the data),
- * and a optional factor and returns the fraction of the two.
- * @param {*} weight
- * @param {*} f
- */
-export const format = (value, f = 12) => {
-	const min = 40
-	return max([min, value / f])
-}
-
-/**
  * Distance method to calculate the position of the intersection-
  * buttons in the force layout graph. It takes two vectors, both
  * holding (x, y) coördinates. It returns the vector of the
  * point halfway between the two given vectors.
- * @param {*} v1
- * @param {*} v2
+ * @param {Object} v1
+ * @param {Object} v2
  */
 export const halfDistance = (v1, v2) => {
 	const vx = (v2.x - v1.x) / 2
@@ -47,6 +36,10 @@ export const halfDistance = (v1, v2) => {
 	return { x: v1.x + vx, y: v1.y + vy }
 }
 
+/**
+ *
+ * @param {Array} triangle
+ */
 export const triangleCentroid = (triangle) => {
 	var cx = (triangle[0][0] + triangle[1][0] + triangle[2][0]) / 3
 	var cy = (triangle[0][1] + triangle[1][1] + triangle[2][1]) / 3
@@ -61,7 +54,11 @@ const vsub = (v1, v2) => [v1[0] - v2[0], v1[1] - v2[1]]
 const vscale = (v, f) => [v[0] * f, v[1] * f]
 const vnorm = (v) => [-v[1], v[0]]
 
-// https://gis.stackexchange.com/questions/104161/how-can-i-find-closest-point-on-a-polygon-from-a-point
+/**
+ * https://gis.stackexchange.com/questions/104161/how-can-i-find-closest-point-on-a-polygon-from-a-point
+ * @param {Array} point
+ * @param {Array} poly
+ */
 export const closestPointOnPolygon = (point, poly) => {
 	let shortestDist = Number.MAX_VALUE
 	let closestPointOnPoly = poly[0]
@@ -114,7 +111,11 @@ export const closestPointOnPolygon = (point, poly) => {
 	return [closestPointOnPoly, shortestDist]
 }
 
-// https://bl.ocks.org/mbostock/7555321
+/**
+ * https://bl.ocks.org/mbostock/7555321
+ * @param {Element} text
+ * @param {Number} width
+ */
 export const wrap = (text, width) => {
 	text.each(function () {
 		let text = select(this),

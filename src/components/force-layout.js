@@ -9,12 +9,12 @@ import {
 	forceY,
 } from "d3-force"
 import { select } from "d3-selection"
-
+import { max } from "d3-array"
+import { scaleLinear } from "d3-scale"
 import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
 import {
-	format,
 	halfDistance,
 	triangleCentroid,
 	closestPointOnPolygon,
@@ -38,12 +38,16 @@ export const ForceLayout = ({
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
 
+	const scale = scaleLinear()
+		.domain([0, max(data.map((el) => el.total))])
+		.range([40, 100])
+
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))
 		.force("center", forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			forceCollide().radius((d) => format(d.total) + 10)
+			forceCollide().radius((d) => scale(d.total) + 10)
 		)
 		.force(
 			"x",
@@ -53,7 +57,7 @@ export const ForceLayout = ({
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							format(d.total))[1]
+							scale(d.total))[1]
 				}
 				return d.x
 			})
@@ -66,7 +70,7 @@ export const ForceLayout = ({
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							format(d.total))[1]
+							scale(d.total))[1]
 				}
 				return d.y
 			})
@@ -120,7 +124,7 @@ export const ForceLayout = ({
 
 			group
 				.append("circle")
-				.attr("r", (d) => format(d.total))
+				.attr("r", (d) => scale(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
@@ -284,7 +288,6 @@ export const ForceLayout = ({
 						.attr("y2", (d) => d.target.y)
 				})
 		}
-
 		// eslint-disable-next-line
 	}, [activeIds, simulation])
 
