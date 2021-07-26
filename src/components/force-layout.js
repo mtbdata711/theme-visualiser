@@ -1,10 +1,20 @@
 import { useEffect, useMemo } from "react"
-import * as d3 from "d3"
+import {
+	forceSimulation,
+	forceManyBody,
+	forceCenter,
+	forceCollide,
+	forceLink,
+	forceX,
+	forceY,
+} from "d3-force"
+import { select } from "d3-selection"
+
 import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
 import {
-	formatWeight,
+	format,
 	halfDistance,
 	triangleCentroid,
 	closestPointOnPolygon,
@@ -28,38 +38,35 @@ export const ForceLayout = ({
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
 
-	console.log(activeNodes)
-
-	const simulation = d3
-		.forceSimulation(data)
-		.force("charge", d3.forceManyBody().strength(20))
-		.force("center", d3.forceCenter(width / 2, height / 2))
+	const simulation = forceSimulation(data)
+		.force("charge", forceManyBody().strength(20))
+		.force("center", forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			d3.forceCollide().radius((d) => formatWeight(d.total) + 10)
+			forceCollide().radius((d) => format(d.total) + 10)
 		)
 		.force(
 			"x",
-			d3.forceX().x((d) => {
+			forceX().x((d) => {
 				if (activeNodes.length > 2) {
 					const polygon = activeNodes.map((v) => [v.x, v.y])
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							formatWeight(d.total))[1]
+							format(d.total))[1]
 				}
 				return d.x
 			})
 		)
 		.force(
 			"y",
-			d3.forceY().y((d) => {
+			forceY().y((d) => {
 				if (activeNodes.length > 2) {
 					const polygon = activeNodes.map((v) => [v.x, v.y])
 					const inPolygon = pointInPolygon([d.x, d.y], polygon)
 					if (inPolygon)
 						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							formatWeight(d.total))[1]
+							format(d.total))[1]
 				}
 				return d.y
 			})
@@ -69,8 +76,7 @@ export const ForceLayout = ({
 	 * The tooltip is a div element that holds three <p> elements
 	 * all having a unique class.
 	 */
-	const tooltip = d3
-		.select("body")
+	const tooltip = select("body")
 		.append("div")
 		.attr("class", "tooltip")
 		.style("position", "absolute")
@@ -82,8 +88,7 @@ export const ForceLayout = ({
 
 	useEffect(() => {
 		simulation.on("tick", () => {
-			const nodes = d3
-				.select("#force-layout")
+			const nodes = select("#force-layout")
 				.selectAll(".node")
 				.data(data)
 				.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
@@ -94,19 +99,18 @@ export const ForceLayout = ({
 				.attr("id", (d) => d.id)
 				.attr("class", "node")
 				.on("mouseover", (event, d) => {
-					d3.select(".tooltip").style("visibility", "visible")
-					d3.select(".tooltip-title").text(d.title)
-					d3.select(".tooltip-label").text(`${d.total} projects`)
-					d3.select(".tooltip-cta").text("Click to connect two themes")
+					select(".tooltip").style("visibility", "visible")
+					select(".tooltip-title").text(d.title)
+					select(".tooltip-label").text(`${d.total} projects`)
+					select(".tooltip-cta").text("Click to connect two themes")
 				})
 				.on("mousemove", (event, d) =>
-					d3
-						.select(".tooltip")
+					select(".tooltip")
 						.style("top", `${event.pageY + 10}px`)
 						.style("left", `${event.pageX + 10}px`)
 				)
 				.on("mouseout", () => {
-					d3.select(".tooltip").style("visibility", "hidden")
+					select(".tooltip").style("visibility", "hidden")
 				})
 				.on("click", function () {
 					dispatch({
@@ -116,7 +120,7 @@ export const ForceLayout = ({
 
 			group
 				.append("circle")
-				.attr("r", (d) => formatWeight(d.total))
+				.attr("r", (d) => format(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
@@ -136,7 +140,7 @@ export const ForceLayout = ({
 	}, [data, width, height, activeIds])
 
 	useEffect(() => {
-		d3.select("#force-layout")
+		select("#force-layout")
 			.selectAll(".node")
 			.select("circle")
 			.attr("fill", colours.dark[1])
@@ -155,8 +159,7 @@ export const ForceLayout = ({
 				links = [...links, ...targets]
 			}
 
-			const link = d3
-				.select("#force-layout")
+			const link = select("#force-layout")
 				.selectAll(".link")
 				.data(links)
 				.enter()
@@ -182,34 +185,32 @@ export const ForceLayout = ({
 						(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
 				)
 				.on("mouseover", (event, d) => {
-					d3.select(".tooltip").style("visibility", "visible")
-					d3.select(".tooltip-title").text(
+					select(".tooltip").style("visibility", "visible")
+					select(".tooltip-title").text(
 						`This is the intersection of: ${d.source.title} and ${d.target.title}`
 					)
-					d3.select(".tooltip-label").text(null)
-					d3.select(".tooltip-cta").text("Click to explore these projects")
-					d3.select(event.target).attr("stroke", colours.white)
+					select(".tooltip-label").text(null)
+					select(".tooltip-cta").text("Click to explore these projects")
+					select(event.target).attr("stroke", colours.white)
 				})
 				.on("mousemove", (event) =>
-					d3
-						.select(".tooltip")
+					select(".tooltip")
 						.style("top", `${event.pageY + 10}px`)
 						.style("left", `${event.pageX + 10}px`)
 				)
 				.on("mouseout", (event) => {
-					d3.select(".tooltip").style("visibility", "hidden")
-					d3.select(event.target).attr("stroke", colours.dark[1])
+					select(".tooltip").style("visibility", "hidden")
+					select(event.target).attr("stroke", colours.dark[1])
 				})
 
-			const intersection = d3
-				.select("#force-layout")
+			const intersection = select("#force-layout")
 				.append("g")
 				.attr("class", "intersection")
 
 			const triangle = intersection
 				.append("polygon")
 				.attr("class", "triangle")
-				.attr("points", "-15,-15 15,-15 0,15")
+				.attr("points", "-15,-15 15,-15 0,10")
 				.attr("fill", colours.orange)
 				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
@@ -219,23 +220,22 @@ export const ForceLayout = ({
 				})
 				.on("mouseover", (event) => {
 					const [n1, n2, n3] = activeNodes
-					d3.select(".tooltip").style("visibility", "visible")
-					d3.select(".tooltip-title").text(
+					select(".tooltip").style("visibility", "visible")
+					select(".tooltip-title").text(
 						`This is the intersection of: ${n1.title}, ${n2.title} and ${n3.title}`
 					)
-					d3.select(".tooltip-label").text(null)
-					d3.select(".tooltip-cta").text("Click to explore these projects")
-					d3.select(event.target).attr("stroke", colours.white)
+					select(".tooltip-label").text(null)
+					select(".tooltip-cta").text("Click to explore these projects")
+					select(event.target).attr("stroke", colours.white)
 				})
 				.on("mousemove", (event) =>
-					d3
-						.select(".tooltip")
+					select(".tooltip")
 						.style("top", `${event.pageY + 10}px`)
 						.style("left", `${event.pageX + 10}px`)
 				)
 				.on("mouseout", (event) => {
-					d3.select(".tooltip").style("visibility", "hidden")
-					d3.select(event.target).attr("stroke", colours.dark[1])
+					select(".tooltip").style("visibility", "hidden")
+					select(event.target).attr("stroke", colours.dark[1])
 				})
 
 			const intersectionLine = intersection
@@ -250,8 +250,8 @@ export const ForceLayout = ({
 			simulation
 				.force(
 					"link",
-					d3
-						.forceLink()
+
+					forceLink()
 						.id((d) => d.id)
 						.links(links)
 						.distance(200)

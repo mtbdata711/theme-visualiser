@@ -1,4 +1,5 @@
-import * as d3 from "d3"
+import { select } from "d3-selection"
+import { max } from "d3-array"
 
 /**
  * Reducer method that takes the ID of the selected node (theme)
@@ -27,10 +28,9 @@ export const reducer = (ids, action) => {
  * @param {*} weight
  * @param {*} f
  */
-export const formatWeight = (value, f = 12) => {
+export const format = (value, f = 12) => {
 	const min = 40
-	// return 20
-	return d3.max([min, value / f])
+	return max([min, value / f])
 }
 
 /**
@@ -117,7 +117,7 @@ export const closestPointOnPolygon = (point, poly) => {
 // https://bl.ocks.org/mbostock/7555321
 export const wrap = (text, width) => {
 	text.each(function () {
-		let text = d3.select(this),
+		let text = select(this),
 			words = text.text().split(" ").reverse(),
 			word,
 			line = [],
@@ -130,7 +130,7 @@ export const wrap = (text, width) => {
 				.append("tspan")
 				.attr("x", 0)
 				.attr("y", y)
-				.attr("dy", dy + "em")
+				.attr("dy", `${dy}em`)
 
 		while ((word = words.pop())) {
 			line.push(word)
@@ -144,7 +144,7 @@ export const wrap = (text, width) => {
 					.append("tspan")
 					.attr("x", 0)
 					.attr("y", y)
-					.attr("dy", ++lineNumber * lineHeight + dy + "em")
+					.attr("dy", `${++lineNumber * lineHeight}em`)
 					.text(word)
 			}
 		}
