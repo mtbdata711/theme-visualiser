@@ -6,6 +6,10 @@ body {
 	background-color: #171717;
 }
 
+#force-layout {
+	position: relative;
+}
+
 .tooltip {
 	background-color: #000;
 	visibility: hidden;

@@ -1,8 +1,14 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import * as d3 from "d3"
+import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
-import { formatWeight, halfDistance } from "../helpers"
+import {
+	formatWeight,
+	halfDistance,
+	closestPointOnPolygon,
+	wrap,
+} from "../helpers"
 import { colours } from "../styles/index"
 
 /**
@@ -14,43 +20,69 @@ export const ForceLayout = ({
 	height,
 	data,
 	dispatch,
-	activeNodes,
+	activeNodes: activeIds,
 	...styles
 }) => {
+	const activeNodes = useMemo(() => {
+		return activeIds.map((id) => data.find((el) => el.id === id))
+	}, [data, activeIds])
+
 	const simulation = d3
 		.forceSimulation(data)
 		.force("charge", d3.forceManyBody().strength(20))
 		.force("center", d3.forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			d3.forceCollide().radius((d) => formatWeight(d.title, d.total) + 10)
+			d3.forceCollide().radius((d) => formatWeight(d.total) + 10)
+		)
+		.force(
+			"x",
+			d3.forceX().x((d) => {
+				if (activeNodes.length > 2) {
+					const polygon = activeNodes.map((v) => [v.x, v.y])
+					const inPolygon = pointInPolygon([d.x, d.y], polygon)
+
+					if (inPolygon)
+						return (closestPointOnPolygon([d.x, d.y], polygon) +
+							d.total / 10)[0]
+				}
+
+				return d.x
+			})
+		)
+		.force(
+			"y",
+			d3.forceY().y((d) => {
+				if (activeNodes.length > 2) {
+					const polygon = activeNodes.map((v) => [v.x, v.y])
+					const inPolygon = pointInPolygon([d.x, d.y], polygon)
+
+					if (inPolygon)
+						return (closestPointOnPolygon([d.x, d.y], polygon) +
+							d.total / 10)[1]
+				}
+
+				return d.y
+			})
 		)
 
 	/**
 	 * The tooltip is a div element that holds three <p> elements
 	 * all having a unique class.
 	 */
-	const tooltip = d3
-		.select("body")
-		.append("div")
-		.attr("class", "tooltip")
-		.style("position", "absolute")
-		.style("visibility", "hidden")
+	// const tooltip = d3
+	// 	.select("body")
+	// 	.append("div")
+	// 	.attr("class", "tooltip")
+	// 	.style("position", "absolute")
+	// 	.style("visibility", "hidden")
 
-	tooltip.append("p").attr("class", "tooltip-title")
-	tooltip.append("p").attr("class", "tooltip-label")
-	tooltip.append("p").attr("class", "tooltip-cta")
-
-	console.log(activeNodes)
+	// tooltip.append("p").attr("class", "tooltip-title")
+	// tooltip.append("p").attr("class", "tooltip-label")
+	// tooltip.append("p").attr("class", "tooltip-cta")
 
 	useEffect(() => {
 		simulation.on("tick", () => {
-			/**
-			 * For every entry in the data a node is appended. A node is a
-			 * group element that holds a className of "node". Instead of
-			 * directly rendering circles in the force-layout, we render
-			 * group elements with a transform-translate attribute.
-			 */
 			const nodes = d3
 				.select("#force-layout")
 				.selectAll(".node")
@@ -83,18 +115,9 @@ export const ForceLayout = ({
 					})
 				})
 
-			/**
-			 * Every group holds both a circle and a text. The circle
-			 * holds a radius-attribute to show the weight of the theme
-			 * (based off the data).
-			 *
-			 * The text element functions as a label and shows the title
-			 * of the theme. This title is positioned in the centre of the circle
-			 * and the text is returned from a truncate function.
-			 */
 			group
 				.append("circle")
-				.attr("r", (d) => formatWeight(d.title, d.total))
+				.attr("r", (d) => formatWeight(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
@@ -103,30 +126,32 @@ export const ForceLayout = ({
 
 			group
 				.append("text")
-				.style("font-size", "16px")
+				.attr("class", "label")
 				.attr("fill", colours.white)
 				.attr("text-anchor", "middle")
 				.attr("dominant-baseline", "middle")
-				.attr("class", "title")
 				.text((d) => d.title)
+				.call(wrap, 10)
 		})
 		// eslint-disable-next-line
-	}, [data, width, height, activeNodes])
+	}, [data, width, height, activeIds])
 
 	useEffect(() => {
 		d3.select("#force-layout")
 			.selectAll(".node")
 			.select("circle")
 			.attr("fill", colours.dark[1])
-			.filter((d) => activeNodes.includes(d.id))
+			.filter((d) => activeIds.includes(d.id))
 			.attr("fill", colours.orange)
 
-		if (activeNodes.length > 1) {
+		if (activeIds?.length > 1) {
 			let links = []
 
-			for (const id of activeNodes) {
-				const targets = activeNodes
-					.map((d) => (d !== id ? { source: id, target: d } : null))
+			for (const id of activeIds) {
+				const targets = activeIds
+					.map((d, i) =>
+						d !== id && i % 2 === 0 ? { source: id, target: d } : null
+					)
 					.filter(Boolean)
 				links = [...links, ...targets]
 			}
@@ -202,7 +227,7 @@ export const ForceLayout = ({
 		} else {
 			d3.select("#force-layout").selectAll(".link").remove()
 		}
-	}, [activeNodes, simulation])
+	}, [activeIds, simulation])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>
