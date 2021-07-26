@@ -110,6 +110,17 @@ const StyledTooltip = styled.div`
 	top: ${(p) => `${p.styles.top}px`};
 	left: ${(p) => `${p.styles.left}px`};
 	width: 200px;
+
+	&:after {
+		content: " ";
+		position: absolute;
+		height: 0;
+		width: 0;
+		left: calc(50% - 30px);
+		top: 100%;
+		border: 20px solid transparent;
+		border-top: 20px solid black;
+	}
 `
 
 export const TooltipTitle = ({ children, ...styles }) => (
