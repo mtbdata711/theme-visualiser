@@ -99,52 +99,6 @@ const StyledTitle = styled.h1`
 	}
 `
 
-export const Tooltip = ({ children, ...styles }) => (
-	<StyledTooltip styles={styles}>{children}</StyledTooltip>
-)
-
-const StyledTooltip = styled.div`
-	position: absolute;
-	background-color: ${() => colours.black};
-	padding: ${() => theme.spaces[1]};
-	top: ${(p) => `${p.styles.top}px`};
-	left: ${(p) => `${p.styles.left}px`};
-	width: 200px;
-
-	&:after {
-		content: " ";
-		position: absolute;
-		height: 0;
-		width: 0;
-		left: calc(50% - 30px);
-		top: 100%;
-		border: 20px solid transparent;
-		border-top: 20px solid black;
-	}
-`
-
-export const TooltipTitle = ({ children, ...styles }) => (
-	<StyledTooltipTitle styles={styles}>{children}</StyledTooltipTitle>
-)
-
-const StyledTooltipTitle = styled.p`
-	color: ${() => colours.orange};
-	font-size: ${() => theme.sizes[3]};
-	margin: 0;
-	margin-bottom: ${() => theme.spaces[0]};
-`
-
-export const TooltipLabel = ({ children, ...styles }) => (
-	<StyledTooltipLabel styles={styles}>{children}</StyledTooltipLabel>
-)
-
-const StyledTooltipLabel = styled.p`
-	color: ${() => colours.white};
-	font-size: ${() => theme.sizes[1]};
-	margin: 0;
-	font-weight: ${(p) => p.styles.fontWeight ?? null};
-`
-
 export const SelectWrapper = ({ children, ...styles }) => {
 	return <StyledSelectWrapper styles={styles}>{children}</StyledSelectWrapper>
 }

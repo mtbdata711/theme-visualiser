@@ -32,25 +32,22 @@ export const ForceLayout = ({
 	data,
 	dispatch,
 	activeNodes: activeIds,
-	setTooltip,
 	...styles
 }) => {
 	const activeNodes = useMemo(() => {
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
 
-	console.log(activeIds, activeNodes)
-
 	const scale = scaleLinear()
 		.domain([0, max(data.map((el) => el.total))])
-		.range([40, 100])
+		.range([50, 100])
 
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))
 		.force("center", forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			forceCollide().radius((d) => scale(d.total) + 10)
+			forceCollide().radius((d) => scale(d.total))
 		)
 		.force(
 			"x",
@@ -97,17 +94,24 @@ export const ForceLayout = ({
 				.attr("stroke", colours.white)
 				.attr("stroke-width", 2)
 				.attr("stroke-opacity", 0.3)
-				.on("mouseover", (_, d) =>
-					setTooltip({
-						title: d.title,
-						total: d.total,
-						x: d.x,
-						y: d.y,
-						type: "theme",
-						cta: "click to select the theme",
-					})
+				.on("mouseover", (event, d) => {
+					select(".tooltip-wrapper")
+						.style("visibility", "visible")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
+					select(".tooltip-type").text("theme")
+					select(".tooltip-title").text(d.title)
+					select(".tooltip-label").text(d.total)
+					select(".tooltip-cta").text("click to select the theme")
+				})
+				.on("mousemove", (event, d) => {
+					select(".tooltip-wrapper")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
+				})
+				.on("mouseout", () =>
+					select(".tooltip-wrapper").style("visibility", "hidden")
 				)
-				.on("mouseout", () => setTooltip(null))
 				.on("click", function () {
 					dispatch({
 						id: Number(this.id),
@@ -124,7 +128,7 @@ export const ForceLayout = ({
 				.call(wrap, 20)
 		})
 		// eslint-disable-next-line
-	}, [data, width, height])
+	}, [data, width, height, activeIds])
 
 	useEffect(() => {
 		select("#force-layout")
@@ -168,19 +172,25 @@ export const ForceLayout = ({
 				.attr("stroke-width", 3)
 				.on("mouseover", (event, d) => {
 					select(event.target).attr("stroke", colours.white)
-					setTooltip({
-						title: `${d.source.title} and ${d.target.title}`,
-						total: d.source.total + d.target.total,
-						x: event.clientX,
-						y: event.clientY,
-						type: "intersection",
-						cta: "click to explore this intersection",
-					})
+					select(".tooltip-wrapper")
+						.style("visibility", "visible")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
+					select(".tooltip-type").text("intersection")
+					select(".tooltip-title").text(
+						`${d.source.title} and ${d.target.title}`
+					)
+					select(".tooltip-label").text(d.source.total + d.target.total)
+					select(".tooltip-cta").text("click to explore this intersection")
 				})
-				.on("mouseout", (event) => {
-					select(event.target).attr("stroke", colours.dark[1])
-					setTooltip(null)
+				.on("mousemove", (event) => {
+					select(".tooltip-wrapper")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
 				})
+				.on("mouseout", () =>
+					select(".tooltip-wrapper").style("visibility", "hidden")
+				)
 				.on(
 					"click",
 					(_, d) =>
@@ -202,18 +212,25 @@ export const ForceLayout = ({
 					select(event.target).attr("stroke", colours.white)
 					const [n1, n2, n3] = activeNodes
 
-					setTooltip({
-						title: `${n1.title}, ${n2.title} and ${n3.title}`,
-						total: n1.total + n2.total + n3.total,
-						x: event.clientX,
-						y: event.clientY,
-						type: "intersection",
-						cta: "click to explore this intersection",
-					})
+					select(".tooltip-wrapper")
+						.style("visibility", "visible")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
+					select(".tooltip-type").text("intersection")
+					select(".tooltip-title").text(
+						`${n1.title}, ${n2.title} and ${n3.title}`
+					)
+					select(".tooltip-label").text(n1.total + n2.total + n3.total)
+					select(".tooltip-cta").text("click to explore this intersection")
+				})
+				.on("mousemove", (event) => {
+					select(".tooltip-wrapper")
+						.style("top", `${event.clientY + 10}px`)
+						.style("left", `${event.clientX + 10}px`)
 				})
 				.on("mouseout", (event) => {
 					select(event.target).attr("stroke", colours.dark[1])
-					setTooltip(null)
+					select(".tooltip-wrapper").style("visibility", "hidden")
 				})
 				.on("click", () => {
 					const [n1, n2, n3] = activeNodes

@@ -6,17 +6,19 @@ body {
 	background-color: #171717;
 }
 
-.tooltip {
+.tooltip-wrapper {
 	background-color: #000;
 	visibility: hidden;
 	position: absolute;
 	padding: 0.8rem;
 	max-width: 30em;
+	color: white;
 }
 
 .tooltip-title,
 .tooltip-label,
-.tooltip-cta {
+.tooltip-cta,
+.tooltip-type {
 	margin: 0;
 	color: #fff;
 }
@@ -24,6 +26,9 @@ body {
 .tooltip-title {
 	font-weight: 600;
 	font-size: 1.5rem;
+	color: #ff8500;
+	margin: 0;
+	margin-bottom: 0.875rem;
 }
 
 .tooltip-cta {
