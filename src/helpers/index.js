@@ -1,5 +1,3 @@
-import { select } from "d3-selection"
-
 /**
  * Reducer method that takes the ID of the selected node (theme)
  * and either adds or removes the ID to a state array.
@@ -61,6 +59,7 @@ const vnorm = (v) => [-v[1], v[0]]
  * @param {Array} poly
  */
 export const closestPointOnPolygon = (point, poly) => {
+	// console.log(point, poly)
 	let shortestDist = Number.MAX_VALUE
 	let closestPointOnPoly = poly[0]
 
@@ -110,45 +109,4 @@ export const closestPointOnPolygon = (point, poly) => {
 	})
 
 	return [closestPointOnPoly, shortestDist]
-}
-
-/**
- * https://bl.ocks.org/mbostock/7555321
- * @param {Element} text
- * @param {Number} width
- */
-export const wrap = (text, width) => {
-	text.each(function () {
-		let text = select(this),
-			words = text.text().split(" ").reverse(),
-			word,
-			line = [],
-			lineNumber = 0,
-			lineHeight = 0.5, // ems
-			y = text.attr("y"),
-			dy = 0,
-			tspan = text
-				.text(null)
-				.append("tspan")
-				.attr("x", 0)
-				.attr("y", y)
-				.attr("dy", `${dy}em`)
-
-		while ((word = words.pop())) {
-			line.push(word)
-			tspan.text(line.join(" "))
-
-			if (tspan.node().getComputedTextLength() > width) {
-				line.pop()
-				tspan.text(line.join(" "))
-				line = [word]
-				tspan = text
-					.append("tspan")
-					.attr("x", 0)
-					.attr("y", y)
-					.attr("dy", `${++lineNumber * lineHeight}em`)
-					.text(word)
-			}
-		}
-	})
 }

@@ -18,7 +18,6 @@ import {
 	halfDistance,
 	triangleCentroid,
 	closestPointOnPolygon,
-	wrap,
 } from "../helpers"
 import { colours } from "../styles/index"
 
@@ -40,40 +39,14 @@ export const ForceLayout = ({
 
 	const scale = scaleLinear()
 		.domain([0, max(data.map((el) => el.total))])
-		.range([50, 100])
+		.range([50, 80])
 
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))
 		.force("center", forceCenter(width / 2, height / 2))
 		.force(
 			"collision",
-			forceCollide().radius((d) => scale(d.total))
-		)
-		.force(
-			"x",
-			forceX().x((d) => {
-				if (activeNodes.length > 2) {
-					const polygon = activeNodes.map((v) => [v.x, v.y])
-					const inPolygon = pointInPolygon([d.x, d.y], polygon)
-					if (inPolygon)
-						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							scale(d.total))[1]
-				}
-				return d.x
-			})
-		)
-		.force(
-			"y",
-			forceY().y((d) => {
-				if (activeNodes.length > 2) {
-					const polygon = activeNodes.map((v) => [v.x, v.y])
-					const inPolygon = pointInPolygon([d.x, d.y], polygon)
-					if (inPolygon)
-						return (closestPointOnPolygon([d.x, d.y], polygon) +
-							scale(d.total))[1]
-				}
-				return d.y
-			})
+			forceCollide().radius((d) => scale(d.total) + 10)
 		)
 
 	useEffect(() => {
@@ -83,11 +56,19 @@ export const ForceLayout = ({
 				.data(data)
 				.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
 
-			const group = nodes.enter().append("g").attr("class", "node")
+			const group = nodes
+				.enter()
+				.append("g")
+				.attr("id", (d) => d.id)
+				.attr("class", "node")
+				.on("click", function () {
+					dispatch({
+						id: Number(this.id),
+					})
+				})
 
 			group
 				.append("circle")
-				.attr("id", (d) => d.id)
 				.attr("r", (d) => scale(d.total))
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
@@ -101,7 +82,7 @@ export const ForceLayout = ({
 						.style("left", `${event.clientX + 10}px`)
 					select(".tooltip-type").text("theme")
 					select(".tooltip-title").text(d.title)
-					select(".tooltip-label").text(d.total)
+					select(".tooltip-label").text(`${d.total} projects`)
 					select(".tooltip-cta").text("click to select the theme")
 				})
 				.on("mousemove", (event, d) => {
@@ -112,20 +93,20 @@ export const ForceLayout = ({
 				.on("mouseout", () =>
 					select(".tooltip-wrapper").style("visibility", "hidden")
 				)
-				.on("click", function () {
-					dispatch({
-						id: Number(this.id),
-					})
-				})
+				.filter((d) => activeIds.includes(d.id))
+				.raise()
 
 			group
-				.append("text")
+				.append("foreignObject")
+				.attr("x", -45)
+				.attr("y", -10)
+				.attr("width", 90)
+				.attr("height", 60)
+				.append("xhtml:div")
+				.style("color", colours.white)
+				.style("text-align", "center")
 				.attr("class", "label")
-				.attr("fill", colours.white)
-				.attr("text-anchor", "middle")
-				.attr("dominant-baseline", "middle")
-				.text((d) => d.title)
-				.call(wrap, 20)
+				.html((d) => d.title)
 		})
 		// eslint-disable-next-line
 	}, [data, width, height, activeIds])
@@ -156,6 +137,7 @@ export const ForceLayout = ({
 				.enter()
 				.append("g")
 				.attr("class", "link")
+				.lower()
 
 			const line = link
 				.append("line")
@@ -180,7 +162,9 @@ export const ForceLayout = ({
 					select(".tooltip-title").text(
 						`${d.source.title} and ${d.target.title}`
 					)
-					select(".tooltip-label").text(d.source.total + d.target.total)
+					select(".tooltip-label").text(
+						`${d.source.total + d.target.total} projects`
+					)
 					select(".tooltip-cta").text("click to explore this intersection")
 				})
 				.on("mousemove", (event) => {
@@ -188,18 +172,21 @@ export const ForceLayout = ({
 						.style("top", `${event.clientY + 10}px`)
 						.style("left", `${event.clientX + 10}px`)
 				})
-				.on("mouseout", () =>
+				.on("mouseout", (event) => {
+					select(event.target).attr("stroke", colours.dark[1])
 					select(".tooltip-wrapper").style("visibility", "hidden")
-				)
+				})
 				.on(
 					"click",
 					(_, d) =>
 						(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
 				)
+				.raise()
 
 			const intersection = select("#force-layout")
 				.append("g")
 				.attr("class", "intersection")
+				.lower()
 
 			const triangle = intersection
 				.append("polygon")
@@ -220,7 +207,9 @@ export const ForceLayout = ({
 					select(".tooltip-title").text(
 						`${n1.title}, ${n2.title} and ${n3.title}`
 					)
-					select(".tooltip-label").text(n1.total + n2.total + n3.total)
+					select(".tooltip-label").text(
+						`${n1.total + n2.total + n3.total} projects`
+					)
 					select(".tooltip-cta").text("click to explore this intersection")
 				})
 				.on("mousemove", (event) => {
@@ -236,6 +225,7 @@ export const ForceLayout = ({
 					const [n1, n2, n3] = activeNodes
 					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
 				})
+				.raise()
 
 			const intersectionLine = intersection
 				.selectAll(".intersection-line")
@@ -249,11 +239,34 @@ export const ForceLayout = ({
 			simulation
 				.force(
 					"link",
-
 					forceLink()
 						.id((d) => d.id)
 						.links(links)
 						.distance(200)
+				)
+				.force(
+					"x",
+					forceX().x((d) => {
+						if (activeNodes.length > 2) {
+							const polygon = activeNodes.map((v) => [v.x, v.y])
+							const inPolygon = pointInPolygon([d.x, d.y], polygon)
+							if (inPolygon)
+								return closestPointOnPolygon([d.x, d.y], polygon)[0][0]
+						}
+						return d.x
+					})
+				)
+				.force(
+					"y",
+					forceY().y((d) => {
+						if (activeNodes.length > 2) {
+							const polygon = activeNodes.map((v) => [v.x, v.y])
+							const inPolygon = pointInPolygon([d.x, d.y], polygon)
+							if (inPolygon)
+								return closestPointOnPolygon([d.x, d.y], polygon)[0][1]
+						}
+						return d.y
+					})
 				)
 				.on("tick", () => {
 					button.attr("transform", (d) => {
@@ -282,7 +295,7 @@ export const ForceLayout = ({
 				})
 		}
 		// eslint-disable-next-line
-	}, [activeIds, simulation])
+	}, [activeIds, simulation, activeIds])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>
