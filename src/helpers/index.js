@@ -59,7 +59,6 @@ const vnorm = (v) => [-v[1], v[0]]
  * @param {Array} poly
  */
 export const closestPointOnPolygon = (point, poly) => {
-	// console.log(point, poly)
 	let shortestDist = Number.MAX_VALUE
 	let closestPointOnPoly = poly[0]
 
@@ -109,4 +108,28 @@ export const closestPointOnPolygon = (point, poly) => {
 	})
 
 	return [closestPointOnPoly, shortestDist]
+}
+
+export const dragFunction = (simulation, drag) => {
+	const dragstarted = (event, d) => {
+		if (!event.active) simulation.alphaTarget(1).restart()
+		d.fx = d.x
+		d.fy = d.y
+	}
+
+	const dragged = (event, d) => {
+		d.fx = event.x
+		d.fy = event.y
+	}
+
+	const dragended = (event, d) => {
+		if (!event.active) simulation.alphaTarget(0)
+		d.fx = null
+		d.fy = null
+	}
+
+	return drag()
+		.on("start", dragstarted)
+		.on("drag", dragged)
+		.on("end", dragended)
 }

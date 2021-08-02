@@ -1,19 +1,19 @@
 import { useReducer, useState, useEffect } from "react"
 
 import { SelectBox } from "./components/select-box"
-import { ForceLayout } from "./components/force-layout"
+import { ForceGraph } from "./components/force-graph"
 import {
 	UALLogo,
 	Header,
 	Main,
 	LoadingBox,
-	Title,
-	Box,
+	// Title,
+	// Box,
 	Flex,
 } from "./components"
 import { reducer } from "./helpers"
-import { useWindowSize } from "./helpers/useWindowSize"
-import { size } from "./styles"
+// import { useWindowSize } from "./helpers/useWindowSize"
+// import { size } from "./styles"
 
 /**
  * This is the main page that holds all the components of the app.
@@ -30,10 +30,7 @@ export const App = () => {
 	const [data, setData] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
-
-	const [activeNodes, dispatch] = useReducer(reducer, [])
-	const windowSize = useWindowSize()
-	const isTablet = windowSize.width < size.laptop
+	const [activeIds, dispatch] = useReducer(reducer, [])
 
 	useEffect(() => {
 		fetch(
@@ -58,12 +55,12 @@ export const App = () => {
 			</Header>
 
 			<Main>
-				<Box padding={[2, 3, 4]}>
+				{/* <Box padding={[2, 3, 4]}>
 					<Title fontSize={[0, 1, 2]} fontWeight={600}>
 						Graduate Showcase
 					</Title>
 					<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
-				</Box>
+				</Box> */}
 
 				<Flex
 					padding={[2, 3, 4]}
@@ -76,17 +73,15 @@ export const App = () => {
 							<SelectBox
 								options={data}
 								dispatch={dispatch}
-								activeNodes={activeNodes}
+								activeIds={activeIds}
 							/>
 
-							<ForceLayout
-								width={
-									isTablet ? window.innerWidth - 40 : window.innerWidth - 400
-								}
-								height={0.65 * window.innerHeight}
+							<ForceGraph
+								width={window.innerWidth - 40}
+								height={window.innerHeight - 130}
 								data={data}
 								dispatch={dispatch}
-								activeNodes={activeNodes}
+								activeIds={activeIds}
 							/>
 						</>
 					)}

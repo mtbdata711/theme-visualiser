@@ -11,6 +11,9 @@ import {
 import { select } from "d3-selection"
 import { max } from "d3-array"
 import { scaleLinear } from "d3-scale"
+import { drag } from "d3-drag"
+// import { zoom } from "d3-zoom"
+
 import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
@@ -18,32 +21,22 @@ import {
 	halfDistance,
 	triangleCentroid,
 	closestPointOnPolygon,
+	dragFunction,
 } from "../helpers"
 import { colours } from "../styles/index"
 
-/**
- * Force-layout component that holds all logic of positioning the
- * nodes in a cartesian coordinate system using d3.js.
- */
-export const ForceLayout = ({
-	width,
-	height,
-	data,
-	dispatch,
-	activeNodes: activeIds,
-	...styles
-}) => {
-	const activeNodes = useMemo(() => {
-		return activeIds.map((id) => data.find((el) => el.id === id))
-	}, [data, activeIds])
+export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
+	const activeNodes = useMemo(
+		() => activeIds.map((id) => data.find((el) => el.id === id)),
+		[data, activeIds]
+	)
 
-	// console.log(activeNodes)
-
+	/**
+	 *  Assignments to the 'links' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect  react-hooks/exhaustive-deps
+	 */
 	let links = []
 
-	const scale = scaleLinear()
-		.domain([0, max(data.map((el) => el.total))])
-		.range([50, 80])
+	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 100])
 
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))
@@ -54,77 +47,62 @@ export const ForceLayout = ({
 		)
 
 	useEffect(() => {
-		simulation.on("tick", () => {
-			const nodes = select("#force-layout")
-				.selectAll(".node")
-				.data(data)
-				.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-
-			const group = nodes
-				.enter()
-				.append("g")
-				.attr("id", (d) => d.id)
-				.attr("class", "node")
-				.on("click", function () {
-					dispatch({
-						id: Number(this.id),
-					})
-				})
-
-			group
-				.append("circle")
-				.attr("r", (d) => scale(d.total))
-				.attr("id", (d) => d.id)
-				.attr("class", "circle")
-				.attr("fill", colours.dark[1])
-				.attr("stroke", colours.white)
-				.attr("stroke-width", 2)
-				.attr("stroke-opacity", 0.3)
-				.on("mouseover", (event, d) => {
-					select(".tooltip-wrapper")
-						.style("visibility", "visible")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-					select(".tooltip-type").text("theme")
-					select(".tooltip-title").text(d.title)
-					select(".tooltip-label").text(`${d.total} projects`)
-					select(".tooltip-cta").text("click to select the theme")
-				})
-				.on("mousemove", (event, d) => {
-					select(".tooltip-wrapper")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-				})
-				.on("mouseout", () =>
-					select(".tooltip-wrapper").style("visibility", "hidden")
-				)
-				.filter((d) => activeIds.includes(d.id))
-				.raise()
-
-			group
-				.append("foreignObject")
-				.attr("x", -45)
-				.attr("y", -10)
-				.attr("width", 90)
-				.attr("height", 60)
-				.append("xhtml:div")
-				.style("color", colours.white)
-				.style("text-align", "center")
-				.attr("class", "label")
-				.html((d) => d.title)
-		})
-		// eslint-disable-next-line
-	}, [data, width, height, activeIds])
-
-	useEffect(() => {
-		select("#force-layout")
+		const svg = select("#force-graph")
+		const nodes = svg
 			.selectAll(".node")
-			.select("circle")
-			.attr("fill", colours.dark[1])
-			.filter((d) => activeIds.includes(d.id))
-			.attr("fill", colours.orange)
+			.data(data)
+			.enter()
+			.append("g")
+			.attr("class", "node")
+			.attr("id", (d) => d.id)
+			.on("click", function () {
+				dispatch({
+					id: Number(this.id),
+				})
+			})
+			.on("mouseover", (event, d) => {
+				select(".tooltip-wrapper")
+					.style("visibility", "visible")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+				select(".tooltip-type").text("theme")
+				select(".tooltip-title").text(d.title)
+				select(".tooltip-label").text(`${d.total} projects`)
+				select(".tooltip-cta").text("click to select the theme")
+			})
+			.on("mousemove", (event, d) => {
+				select(".tooltip-wrapper")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+			})
+			.on("mouseout", () =>
+				select(".tooltip-wrapper").style("visibility", "hidden")
+			)
+			.call(dragFunction(simulation, drag))
 
-		if (activeIds?.length > 1) {
+		nodes
+			.append("circle")
+			.attr("r", (d) => scale(d.total))
+			.attr("class", "circle")
+			.attr("fill", colours.dark[1])
+			.attr("stroke", colours.white)
+			.attr("stroke-width", 2)
+			.attr("stroke-opacity", 0.3)
+
+		nodes
+			.append("foreignObject")
+			.attr("id", (d) => d.id)
+			.attr("x", -45)
+			.attr("y", -10)
+			.attr("width", 90)
+			.attr("height", 60)
+			.append("xhtml:div")
+			.style("color", colours.white)
+			.style("text-align", "center")
+			.attr("class", "label")
+			.html((d) => d.title)
+
+		if (activeIds.length > 1) {
 			for (const node of activeNodes) {
 				const targets = activeNodes
 					.map((d, i) =>
@@ -135,21 +113,20 @@ export const ForceLayout = ({
 				links = [...links, ...targets]
 			}
 
-			const link = select("#force-layout")
+			const link = select("#force-graph")
 				.selectAll(".link")
 				.data(links)
 				.enter()
 				.append("g")
 				.attr("class", "link")
-				.lower()
 
-			const line = link
+			link
 				.append("line")
 				.attr("class", "line")
 				.attr("stroke-width", 2)
 				.attr("stroke", colours.orange)
 
-			const button = link
+			link
 				.append("circle")
 				.attr("class", "button")
 				.attr("r", 12)
@@ -185,30 +162,28 @@ export const ForceLayout = ({
 					(_, d) =>
 						(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
 				)
-				.raise()
 
-			const intersection = select("#force-layout")
-				.append("g")
-				.attr("class", "intersection")
-				.lower()
-
-			const intersectionLine = intersection
-				.selectAll(".intersection-line")
+			const intersection = select("#force-graph")
+				.selectAll(".intersection")
 				.data(activeNodes)
 				.enter()
+				.append("g")
+				.attr("class", "intersection")
+
+			intersection
 				.append("line")
 				.attr("class", "intersection-line")
 				.attr("stroke-width", 2)
 				.attr("stroke", colours.orange)
 
-			const triangle = intersection
+			intersection
 				.append("polygon")
 				.attr("class", "triangle")
 				.attr("points", "-15,-15 15,-15 0,10")
 				.attr("fill", colours.orange)
 				.attr("stroke", colours.dark[1])
 				.attr("stroke-width", 3)
-				.on("mouseover", (event, d) => {
+				.on("mouseover", (event) => {
 					select(event.target).attr("stroke", colours.white)
 					const [n1, n2, n3] = activeNodes
 
@@ -238,20 +213,18 @@ export const ForceLayout = ({
 					const [n1, n2, n3] = activeNodes
 					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
 				})
-				.raise()
 
 			simulation
 				.force(
 					"link",
-					forceLink()
+					forceLink(links)
 						.id((d) => d.id)
-						.links(links)
 						.distance(200)
 				)
 				.force(
 					"x",
 					forceX().x((d) => {
-						if (activeNodes.length > 2) {
+						if (activeIds.length > 2) {
 							const polygon = activeNodes.map((v) => [v.x, v.y])
 							const inPolygon = pointInPolygon([d.x, d.y], polygon)
 							if (inPolygon)
@@ -263,7 +236,7 @@ export const ForceLayout = ({
 				.force(
 					"y",
 					forceY().y((d) => {
-						if (activeNodes.length > 2) {
+						if (activeIds.length > 2) {
 							const polygon = activeNodes.map((v) => [v.x, v.y])
 							const inPolygon = pointInPolygon([d.x, d.y], polygon)
 							if (inPolygon)
@@ -272,42 +245,67 @@ export const ForceLayout = ({
 						return d.y
 					})
 				)
-				.on("tick", () => {
-					button.attr("transform", (d) => {
-						const { x, y } = halfDistance(d.source, d.target)
+		}
+
+		simulation
+			.on("tick", () => {
+				nodes.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+				const link = select("#force-graph").selectAll(".link")
+
+				link
+					.select("line")
+					.attr("x1", (d) => d.source.x)
+					.attr("y1", (d) => d.source.y)
+					.attr("x2", (d) => d.target.x)
+					.attr("y2", (d) => d.target.y)
+
+				link.select("circle").attr("transform", (d) => {
+					const { x, y } = halfDistance(d.source, d.target)
+					return `translate(${x}, ${y})`
+				})
+
+				if (activeIds.length > 2) {
+					const intersection = select("#force-graph").selectAll(".intersection")
+					const polygon = activeNodes.map((v) => [v.x, v.y])
+
+					intersection
+						.select("line")
+						.attr("x1", (d) => d.x)
+						.attr("x2", () => triangleCentroid(polygon).x)
+						.attr("y1", (d) => d.y)
+						.attr("y2", () => triangleCentroid(polygon).y)
+
+					intersection.select("polygon").attr("transform", () => {
+						const { x, y } = triangleCentroid(polygon)
 						return `translate(${x}, ${y})`
 					})
+				}
+			})
+			.alphaTarget(0.5)
+			.restart()
+	}, [simulation, data, activeIds])
 
-					if (activeIds?.length === 3) {
-						const polygon = activeNodes.map((v) => [v.x, v.y])
-						const { x, y } = triangleCentroid(polygon)
+	useEffect(() => {
+		const nodes = select("#force-graph").selectAll(".node")
 
-						intersectionLine
-							.attr("x1", (d) => d.x)
-							.attr("x2", x)
-							.attr("y1", (d) => d.y)
-							.attr("y2", y)
+		nodes
+			.select("circle")
+			.attr("fill", colours.dark[1])
+			.filter((d) => activeIds.includes(d.id))
+			.attr("fill", colours.orange)
 
-						triangle.attr("transform", () => `translate(${x}, ${y})`)
-					}
+		nodes.select("foreignObject").filter((d) => activeIds.includes(d.id))
 
-					line
-						.attr("x1", (d) => d.source.x)
-						.attr("y1", (d) => d.source.y)
-						.attr("x2", (d) => d.target.x)
-						.attr("y2", (d) => d.target.y)
-				})
-		}
-		// eslint-disable-next-line
-	}, [activeIds, simulation, activeIds, links])
+		select("#force-graph").selectAll(".link")
+	}, [activeIds])
 
 	return (
-		<GraphWrapper width={width} height={height} styles={styles}>
+		<GraphWrapper width={width} height={height}>
 			<svg
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}
-				id="force-layout"
+				id="force-graph"
 			></svg>
 		</GraphWrapper>
 	)

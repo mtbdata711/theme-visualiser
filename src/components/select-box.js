@@ -15,45 +15,36 @@ import { SelectWrapper, Box, Title, Label } from "./index"
  * The options are sorted based on total (descending, or high-to-low),
  * and for each option a checkbox and label are rendered.
  */
-export const SelectBox = ({ options, dispatch, activeNodes }) => {
-	return (
-		<SelectWrapper
-			width={["100%", "300px", null]}
-			height={["100%", "65vh", null]}
-		>
-			<Title fontSize={[0, 1, 2]} fonttotal={600}>
-				Select themes
-			</Title>
-			<Box padding={[null]}>
-				{options
-					.sort((a, b) => b.total - a.total)
-					.map((option) => (
-						<Label
-							htmlFor={option.id}
-							key={option.id}
-							padding=".2rem 0"
-							className={
-								activeNodes.includes(option.id) ? "selected" : "not-selected"
+export const SelectBox = ({ options, dispatch, activeIds }) => (
+	<SelectWrapper
+		width={["100%", "300px", null]}
+		height={["100%", "65vh", null]}
+	>
+		<Title fontSize={[0, 1, 2]} fontWeight={600}>
+			Select themes
+		</Title>
+		<Box padding={[null]}>
+			{options
+				.sort((a, b) => b.total - a.total)
+				.map((option) => (
+					<Label htmlFor={option.id} key={option.id} padding=".2rem 0">
+						<input
+							type="checkbox"
+							className="checkbox"
+							name={option.title}
+							id={option.id}
+							value={option.title}
+							checked={activeIds.includes(option.id)}
+							onChange={(event) =>
+								dispatch({
+									target: event.target,
+									id: Number(event.target.id),
+								})
 							}
-						>
-							<input
-								type="checkbox"
-								className="checkbox"
-								name={option.title}
-								id={option.id}
-								value={option.title}
-								checked={activeNodes.includes(option.id)}
-								onChange={(event) =>
-									dispatch({
-										target: event.target,
-										id: Number(event.target.id),
-									})
-								}
-							/>
-							<span className="checkbox-label">{`${option.title} (${option.total})`}</span>
-						</Label>
-					))}
-			</Box>
-		</SelectWrapper>
-	)
-}
+						/>
+						<span className="checkbox-label">{`${option.title} (${option.total})`}</span>
+					</Label>
+				))}
+		</Box>
+	</SelectWrapper>
+)
