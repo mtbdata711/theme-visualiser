@@ -37,6 +37,10 @@ export const ForceLayout = ({
 		return activeIds.map((id) => data.find((el) => el.id === id))
 	}, [data, activeIds])
 
+	// console.log(activeNodes)
+
+	let links = []
+
 	const scale = scaleLinear()
 		.domain([0, max(data.map((el) => el.total))])
 		.range([50, 80])
@@ -70,6 +74,7 @@ export const ForceLayout = ({
 			group
 				.append("circle")
 				.attr("r", (d) => scale(d.total))
+				.attr("id", (d) => d.id)
 				.attr("class", "circle")
 				.attr("fill", colours.dark[1])
 				.attr("stroke", colours.white)
@@ -120,14 +125,13 @@ export const ForceLayout = ({
 			.attr("fill", colours.orange)
 
 		if (activeIds?.length > 1) {
-			let links = []
-
-			for (const id of activeIds) {
-				const targets = activeIds
+			for (const node of activeNodes) {
+				const targets = activeNodes
 					.map((d, i) =>
-						d !== id && i % 2 === 0 ? { source: id, target: d } : null
+						d !== node && i % 2 === 0 ? { source: node, target: d } : null
 					)
 					.filter(Boolean)
+
 				links = [...links, ...targets]
 			}
 
@@ -188,6 +192,15 @@ export const ForceLayout = ({
 				.attr("class", "intersection")
 				.lower()
 
+			const intersectionLine = intersection
+				.selectAll(".intersection-line")
+				.data(activeNodes)
+				.enter()
+				.append("line")
+				.attr("class", "intersection-line")
+				.attr("stroke-width", 2)
+				.attr("stroke", colours.orange)
+
 			const triangle = intersection
 				.append("polygon")
 				.attr("class", "triangle")
@@ -226,15 +239,6 @@ export const ForceLayout = ({
 					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
 				})
 				.raise()
-
-			const intersectionLine = intersection
-				.selectAll(".intersection-line")
-				.data(activeNodes)
-				.enter()
-				.append("line")
-				.attr("class", "intersection-line")
-				.attr("stroke-width", 2)
-				.attr("stroke", colours.orange)
 
 			simulation
 				.force(
@@ -295,7 +299,7 @@ export const ForceLayout = ({
 				})
 		}
 		// eslint-disable-next-line
-	}, [activeIds, simulation, activeIds])
+	}, [activeIds, simulation, activeIds, links])
 
 	return (
 		<GraphWrapper width={width} height={height} styles={styles}>
