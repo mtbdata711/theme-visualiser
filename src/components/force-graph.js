@@ -30,40 +30,85 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		[data, activeIds]
 	)
 
-	/**
-	 *  Assignments to the 'links' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect  react-hooks/exhaustive-deps
-	 */
-	// eslint-disable-next-line
-	let links = []
-
 	const scale = scaleLinear([0, max(data.map((el) => el.total))], [50, 80])
 	const fontScale = scaleLinear(
 		[0, max(data.map((el) => el.title.length))],
 		[18, 12]
 	)
 
-	const simulation = forceSimulation(data)
-		.force("charge", forceManyBody().strength(20))
-		.force("center", forceCenter(width / 2, height / 2))
-		.force(
-			"collision",
-			forceCollide().radius((d) => scale(d.total) + 10)
-		)
+	const links = useMemo(() => {
+		const links = []
+		if (activeNodes.length <= 1) return links
+
+		for (let [i, node] of activeNodes.entries()) {
+			if (activeNodes.length === 2) {
+				links.push({ source: node.id, target: activeNodes[i + 1].id })
+				break
+			}
+
+			if (i === activeNodes.length - 1) {
+				links.push({ source: node.id, target: activeNodes[0].id })
+			} else {
+				links.push({ source: node.id, target: activeNodes[i + 1].id })
+			}
+		}
+
+		return links
+	}, [activeNodes])
 
 	useEffect(() => {
-		const svg = select("#force-graph")
-		const nodes = svg
-			.selectAll(".node")
-			.data(data)
-			.enter()
-			.append("g")
+		const simulation = forceSimulation(data)
+			.force("charge", forceManyBody().strength(15))
+			.force("center", forceCenter(width / 2, height / 2))
+			.force(
+				"collision",
+				forceCollide().radius((d) => scale(d.total) + 10)
+			)
+			.force(
+				"x",
+				forceX()
+					.x((d) => {
+						if (activeNodes.length > 2) {
+							const polygon = activeNodes.map((v) => [v.x, v.y])
+							const inPolygon = pointInPolygon([d.x, d.y], polygon)
+							if (inPolygon) {
+								d.inPolygon = true
+								return closestPointOnPolygon([d.x, d.y], polygon)[0]
+							} else d.inPolygon = false
+						}
+						return d.x
+					})
+					.strength((d) => (d.inPolygon ? 0.35 : 0.01))
+			)
+			.force(
+				"y",
+				forceY()
+					.y((d) => {
+						if (activeNodes.length > 2) {
+							const polygon = activeNodes.map((v) => [v.x, v.y])
+							const inPolygon = pointInPolygon([d.x, d.y], polygon)
+							if (inPolygon) {
+								d.inPolygon = true
+								return closestPointOnPolygon([d.x, d.y], polygon)[1]
+							} else d.inPolygon = false
+						}
+						return d.y
+					})
+					.strength((d) => (d.inPolygon ? 0.35 : 0.01))
+			)
+			.force(
+				"link",
+				forceLink(links)
+					.id((d) => d.id)
+					.distance(200)
+			)
+			.stop()
+
+		const nodes = select("#force-graph").selectAll(".node").data(data).join("g")
+
+		nodes
 			.attr("class", "node")
 			.attr("id", (d) => d.id)
-			.on("click", function () {
-				dispatch({
-					id: Number(this.id),
-				})
-			})
 			.on("mouseover", (event, d) => {
 				select(".tooltip-wrapper")
 					.style("visibility", "visible")
@@ -83,6 +128,11 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			)
 			.call(dragFunction(simulation, drag))
+			.on("click", function () {
+				dispatch({
+					id: Number(this.id),
+				})
+			})
 
 		nodes
 			.append("circle")
@@ -96,9 +146,9 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		nodes
 			.append("foreignObject")
 			.attr("id", (d) => d.id)
-			.attr("x", -45)
+			.attr("x", -40)
 			.attr("y", -10)
-			.attr("width", 90)
+			.attr("width", 80)
 			.attr("height", 60)
 			.append("xhtml:div")
 			.style("color", colours.white)
@@ -107,152 +157,109 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.attr("class", "label")
 			.html((d) => d.title)
 
-		if (activeIds.length > 1) {
-			for (const node of activeNodes) {
-				const targets = activeNodes
-					.map((d) => (d !== node ? { source: node, target: d } : null))
-					.filter(Boolean)
-					.filter((d) => activeNodes[0].title === d.source.title)
+		nodes
+			.filter((d) => activeNodes.some((el) => el.id === d.id))
+			.selectAll("circle")
+			.attr("fill", colours.orange)
 
-				// eslint-disable-next-line
-				links = [...links, ...targets]
-			}
+		const link = select("#force-graph")
+			.selectAll(".link")
+			.data(links)
+			.join("g")
+			.attr("class", "link")
 
-			const link = select("#force-graph")
-				.selectAll(".link")
-				.data(links)
-				.enter()
-				.append("g")
-				.attr("class", "link")
-				.lower()
+		link
+			.append("line")
+			.attr("class", "line")
+			.attr("stroke-width", 2)
+			.attr("stroke", colours.orange)
 
-			link
-				.append("line")
-				.attr("class", "line")
-				.attr("stroke-width", 2)
-				.attr("stroke", colours.orange)
-
-			link
-				.append("circle")
-				.attr("class", "button")
-				.attr("r", 12)
-				.attr("fill", colours.orange)
-				.attr("stroke", colours.dark[1])
-				.attr("stroke-width", 3)
-				.on("mouseover", (event, d) => {
-					select(event.target).attr("stroke", colours.white)
-					select(".tooltip-wrapper")
-						.style("visibility", "visible")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-					select(".tooltip-type").text("intersection")
-					select(".tooltip-title").text(
-						`${d.source.title} and ${d.target.title}`
-					)
-					select(".tooltip-label").text(
-						`${d.source.total + d.target.total} projects`
-					)
-					select(".tooltip-cta").text("click to explore this intersection")
-				})
-				.on("mousemove", (event) => {
-					select(".tooltip-wrapper")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-				})
-				.on("mouseout", (event) => {
-					select(event.target).attr("stroke", colours.dark[1])
-					select(".tooltip-wrapper").style("visibility", "hidden")
-				})
-				.on(
-					"click",
-					(_, d) =>
-						(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
+		link
+			.append("circle")
+			.attr("class", "button")
+			.attr("r", 12)
+			.attr("fill", colours.orange)
+			.attr("stroke", colours.dark[1])
+			.attr("stroke-width", 3)
+			.on("mouseover", (event, d) => {
+				select(event.target).attr("stroke", colours.white)
+				select(".tooltip-wrapper")
+					.style("visibility", "visible")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+				select(".tooltip-type").text("intersection")
+				select(".tooltip-title").text(`${d.source.title} and ${d.target.title}`)
+				select(".tooltip-label").text(
+					`${d.source.total + d.target.total} projects`
 				)
+				select(".tooltip-cta").text("click to explore this intersection")
+			})
+			.on("mousemove", (event) => {
+				select(".tooltip-wrapper")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+			})
+			.on("mouseout", (event) => {
+				select(event.target).attr("stroke", colours.dark[1])
+				select(".tooltip-wrapper").style("visibility", "hidden")
+			})
+		// .on(
+		// 	"click",
+		// 	(_, d) =>
+		// 		(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
+		// )
 
-			const intersection = select("#force-graph")
-				.selectAll(".intersection")
-				.data(activeNodes)
-				.enter()
-				.append("g")
-				.attr("class", "intersection")
-				.lower()
+		link.exit().remove()
 
-			intersection
-				.append("line")
-				.attr("class", "intersection-line")
-				.attr("stroke-width", 2)
-				.attr("stroke", colours.orange)
+		const intersection = select("#force-graph")
+			.selectAll(".intersection")
+			.data(links)
+			.join("g")
+			.attr("class", "intersection")
 
-			intersection
-				.append("polygon")
-				.attr("class", "triangle")
-				.attr("points", "-15,-15 15,-15 0,10")
-				.attr("fill", colours.orange)
-				.attr("stroke", colours.dark[1])
-				.attr("stroke-width", 3)
-				.on("mouseover", (event) => {
-					select(event.target).attr("stroke", colours.white)
-					const [n1, n2, n3] = activeNodes
+		intersection
+			.append("line")
+			.attr("class", "intersection-line")
+			.attr("stroke-width", 2)
+			.attr("stroke", colours.orange)
 
-					select(".tooltip-wrapper")
-						.style("visibility", "visible")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-					select(".tooltip-type").text("intersection")
-					select(".tooltip-title").text(
-						`${n1.title}, ${n2.title} and ${n3.title}`
-					)
-					select(".tooltip-label").text(
-						`${n1.total + n2.total + n3.total} projects`
-					)
-					select(".tooltip-cta").text("click to explore this intersection")
-				})
-				.on("mousemove", (event) => {
-					select(".tooltip-wrapper")
-						.style("top", `${event.clientY + 10}px`)
-						.style("left", `${event.clientX + 10}px`)
-				})
-				.on("mouseout", (event) => {
-					select(event.target).attr("stroke", colours.dark[1])
-					select(".tooltip-wrapper").style("visibility", "hidden")
-				})
-				.on("click", () => {
-					const [n1, n2, n3] = activeNodes
-					window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
-				})
+		intersection
+			.append("polygon")
+			.attr("class", "triangle")
+			.attr("points", "-15,-15 15,-15 0,10")
+			.attr("fill", colours.orange)
+			.attr("stroke", colours.dark[1])
+			.attr("stroke-width", 3)
+			.on("mouseover", (event) => {
+				select(event.target).attr("stroke", colours.white)
+				const [n1, n2, n3] = activeNodes
 
-			simulation
-				.force(
-					"link",
-					forceLink(links)
-						.id((d) => d.id)
-						.distance(200)
+				select(".tooltip-wrapper")
+					.style("visibility", "visible")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+				select(".tooltip-type").text("intersection")
+				select(".tooltip-title").text(
+					`${n1.title}, ${n2.title} and ${n3.title}`
 				)
-				.force(
-					"x",
-					forceX().x((d) => {
-						if (activeIds.length > 2) {
-							const polygon = activeNodes.map((v) => [v.x, v.y])
-							const inPolygon = pointInPolygon([d.x, d.y], polygon)
-							if (inPolygon)
-								return closestPointOnPolygon([d.x, d.y], polygon)[0][0]
-						}
-						return d.x
-					})
+				select(".tooltip-label").text(
+					`${n1.total + n2.total + n3.total} projects`
 				)
-				.force(
-					"y",
-					forceY().y((d) => {
-						if (activeIds.length > 2) {
-							const polygon = activeNodes.map((v) => [v.x, v.y])
-							const inPolygon = pointInPolygon([d.x, d.y], polygon)
-							if (inPolygon)
-								return closestPointOnPolygon([d.x, d.y], polygon)[0][1]
-						}
-						return d.y
-					})
-				)
-		}
+				select(".tooltip-cta").text("click to explore this intersection")
+			})
+			.on("mousemove", (event) => {
+				select(".tooltip-wrapper")
+					.style("top", `${event.clientY + 10}px`)
+					.style("left", `${event.clientX + 10}px`)
+			})
+			.on("mouseout", (event) => {
+				select(event.target).attr("stroke", colours.dark[1])
+				select(".tooltip-wrapper").style("visibility", "hidden")
+			})
+		// .on("click", () => {
+		// 	const [n1, n2, n3] = activeNodes
+		// 	window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
+		// })
 
 		simulation
 			.on("tick", () => {
@@ -271,15 +278,15 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 					return `translate(${x}, ${y})`
 				})
 
-				if (activeIds.length > 2) {
+				if (activeNodes.length > 2) {
 					const intersection = select("#force-graph").selectAll(".intersection")
-					const polygon = activeNodes.map((v) => [v.x, v.y])
+					const polygon = links.map((v) => [v.source.x, v.source.y])
 
 					intersection
 						.select("line")
-						.attr("x1", (d) => d.x)
+						.attr("x1", (d) => d.source.x)
 						.attr("x2", () => triangleCentroid(polygon).x)
-						.attr("y1", (d) => d.y)
+						.attr("y1", (d) => d.source.y)
 						.attr("y2", () => triangleCentroid(polygon).y)
 
 					intersection.select("polygon").attr("transform", () => {
@@ -288,38 +295,23 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 					})
 				}
 			})
-			.alphaTarget(0.5)
 			.restart()
-	}, [simulation, data, activeIds, activeNodes, dispatch, links, scale])
 
-	useEffect(() => {
-		select("#force-graph")
-			.selectAll(".node")
-			.select("circle")
-			.attr("fill", colours.dark[1])
-			.filter((d) => activeIds.includes(d.id))
-			.attr("fill", colours.orange)
-
-		// console.log(links)
-
-		// select("#force-graph")
-		// 	.selectAll(".link")
-		// 	.filter((d) => !activeIds.includes(d.source.id))
-		// 	.remove()
-
-		// select("#force-graph")
-		// 	.selectAll(".intersection")
-		// 	.filter((d) => !activeIds.includes(d.id))
-		// 	.remove()
-
-		// if (activeIds.length < 2) select("#force-graph").selectAll(".link").remove()
-		// if (activeIds.length < 3)
-		// 	select("#force-graph").selectAll(".intersection").remove()
-	}, [activeIds])
+		return () => {
+			simulation.stop()
+		}
+	}, [data, activeNodes, links, dispatch, fontScale, width, height, scale])
 
 	return (
 		<GraphWrapper width={width} height={height}>
 			<svg
+				// onClick={(evt) => {
+				// 	const id = evt.target.id
+				// 	if (!Number.isNaN(Number(id)) && activeNodes.length < 3) {
+				// 		// dispatch(Number(id))
+				// 		console.log(select(evt.target))
+				// 	}
+				// }}
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}

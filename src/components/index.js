@@ -134,7 +134,6 @@ export const GraphWrapper = ({ children, width, height }) => {
 const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
-	// border: 1px solid white;
 
 	& svg .node:hover,
 	.triangle:hover,

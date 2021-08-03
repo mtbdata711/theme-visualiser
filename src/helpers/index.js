@@ -29,6 +29,7 @@ export const reducer = (ids, action) => {
 export const halfDistance = (v1, v2) => {
 	const vx = (v2.x - v1.x) / 2
 	const vy = (v2.y - v1.y) / 2
+
 	return { x: v1.x + vx, y: v1.y + vy }
 }
 
@@ -107,7 +108,7 @@ export const closestPointOnPolygon = (point, poly) => {
 		}
 	})
 
-	return [closestPointOnPoly, shortestDist]
+	return closestPointOnPoly
 }
 
 export const dragFunction = (simulation, drag) => {
@@ -136,6 +137,7 @@ export const dragFunction = (simulation, drag) => {
 
 export const calculateMargins = (width, breakpoints, margins) => {
 	const index = breakpoints.findIndex((bp) => bp >= width) - 1
+
 	return {
 		top: margins[index],
 		right: margins[index],
