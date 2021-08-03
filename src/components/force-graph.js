@@ -36,7 +36,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 	 */
 	let links = []
 
-	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 100])
+	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 80])
 
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))

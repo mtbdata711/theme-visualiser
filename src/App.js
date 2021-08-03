@@ -1,5 +1,4 @@
 import { useReducer, useState, useEffect } from "react"
-
 import { SelectBox } from "./components/select-box"
 import { ForceGraph } from "./components/force-graph"
 import {
@@ -7,13 +6,14 @@ import {
 	Header,
 	Main,
 	LoadingBox,
-	// Title,
-	// Box,
 	Flex,
+	Tooltip,
+	Title,
+	Box,
 } from "./components"
-import { reducer } from "./helpers"
-// import { useWindowSize } from "./helpers/useWindowSize"
-// import { size } from "./styles"
+import { reducer, calculateMargins } from "./helpers"
+import { useWindowSize } from "./helpers/useWindowSize"
+import { size, theme } from "./styles"
 
 /**
  * This is the main page that holds all the components of the app.
@@ -31,6 +31,7 @@ export const App = () => {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
 	const [activeIds, dispatch] = useReducer(reducer, [])
+	const windowSize = useWindowSize()
 
 	useEffect(() => {
 		fetch(
@@ -48,6 +49,15 @@ export const App = () => {
 			.finally(() => setLoading(false))
 	}, [])
 
+	const margin = calculateMargins(windowSize.width, Object.values(size), [
+		theme.margins[2],
+		theme.margins[3],
+		theme.margins[4],
+	])
+
+	const width = window.innerWidth - margin.right - margin.left
+	const height = window.innerHeight - margin.top - margin.bottom
+
 	return (
 		<>
 			<Header padding={[2, 3, 4]}>
@@ -55,12 +65,10 @@ export const App = () => {
 			</Header>
 
 			<Main>
-				{/* <Box padding={[2, 3, 4]}>
-					<Title fontSize={[0, 1, 2]} fontWeight={600}>
-						Graduate Showcase
-					</Title>
-					<Title fontSize={[4, 5, 6]}>Theme Visualiser</Title>
-				</Box> */}
+				<Box padding={[2, 3, 4]}>
+					<Title fontSize={[1, 2, 3]}>Graduate Show</Title>
+					<Title fontSize={[3, 4, 5]}>Theme Visualizer</Title>
+				</Box>
 
 				<Flex
 					padding={[2, 3, 4]}
@@ -77,8 +85,8 @@ export const App = () => {
 							/>
 
 							<ForceGraph
-								width={window.innerWidth - 40}
-								height={window.innerHeight - 130}
+								width={windowSize.width >= size.laptop ? width - 240 : width}
+								height={height}
 								data={data}
 								dispatch={dispatch}
 								activeIds={activeIds}
@@ -87,12 +95,7 @@ export const App = () => {
 					)}
 				</Flex>
 
-				<div className="tooltip-wrapper">
-					<p className="tooltip-type"></p>
-					<p className="tooltip-title"></p>
-					<p className="tooltip-label"></p>
-					<p className="tooltip-cta"></p>
-				</div>
+				<Tooltip />
 			</Main>
 		</>
 	)

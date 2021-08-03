@@ -48,6 +48,7 @@ export const theme = {
 		"4rem",
 		"6rem",
 	],
+	margins: [14, 16, 20, 24, 32],
 }
 
 export const size = {

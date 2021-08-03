@@ -106,8 +106,6 @@ export const SelectWrapper = ({ children, ...styles }) => {
 const StyledSelectWrapper = styled.div`
 	background-color: ${() => colours.dark[1]};
 	overflow: scroll;
-	border-top: ${() => `1px solid ${colours.white}`};
-	border-bottom: ${() => `1px solid ${colours.white}`};
 
 	@media ${device.mobile} {
 		width: ${(p) => p.styles.width[0]};
@@ -136,6 +134,7 @@ export const GraphWrapper = ({ children, width, height }) => {
 const StyledGraphWrapper = styled.div`
 	width: ${(p) => `${p.width}px`};
 	height: ${(p) => `${p.height}px`};
+	// border: 1px solid white;
 
 	& svg .node:hover,
 	.triangle:hover,
@@ -209,3 +208,12 @@ const StyledLoadingBox = styled.div`
 		}
 	}
 `
+
+export const Tooltip = () => (
+	<div className="tooltip-wrapper">
+		<p className="tooltip-type"></p>
+		<p className="tooltip-title"></p>
+		<p className="tooltip-label"></p>
+		<p className="tooltip-cta"></p>
+	</div>
+)

@@ -1,4 +1,4 @@
-import { SelectWrapper, Box, Title, Label } from "./index"
+import { SelectWrapper, Box, Label } from "./index"
 
 /**
  * The Select Box component renders the menu that holds the
@@ -16,13 +16,7 @@ import { SelectWrapper, Box, Title, Label } from "./index"
  * and for each option a checkbox and label are rendered.
  */
 export const SelectBox = ({ options, dispatch, activeIds }) => (
-	<SelectWrapper
-		width={["100%", "300px", null]}
-		height={["100%", "65vh", null]}
-	>
-		<Title fontSize={[0, 1, 2]} fontWeight={600}>
-			Select themes
-		</Title>
+	<SelectWrapper width={["100%", null]} height={["100%", null]}>
 		<Box padding={[null]}>
 			{options
 				.sort((a, b) => b.total - a.total)

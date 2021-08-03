@@ -133,3 +133,13 @@ export const dragFunction = (simulation, drag) => {
 		.on("drag", dragged)
 		.on("end", dragended)
 }
+
+export const calculateMargins = (width, breakpoints, margins) => {
+	const index = breakpoints.findIndex((bp) => bp >= width) - 1
+	return {
+		top: margins[index],
+		right: margins[index],
+		bottom: margins[index],
+		left: margins[index],
+	}
+}
