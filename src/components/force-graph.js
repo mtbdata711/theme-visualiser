@@ -110,6 +110,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 					)
 					.filter(Boolean)
 
+				// eslint-disable-next-line
 				links = [...links, ...targets]
 			}
 
