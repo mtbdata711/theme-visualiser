@@ -82,6 +82,7 @@ export const App = () => {
 								options={data}
 								dispatch={dispatch}
 								activeIds={activeIds}
+								height={height}
 							/>
 
 							<ForceGraph

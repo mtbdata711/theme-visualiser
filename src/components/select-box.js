@@ -15,8 +15,8 @@ import { SelectWrapper, Box, Label } from "./index"
  * The options are sorted based on total (descending, or high-to-low),
  * and for each option a checkbox and label are rendered.
  */
-export const SelectBox = ({ options, dispatch, activeIds }) => (
-	<SelectWrapper width={["100%", null]} height={["100%", null]}>
+export const SelectBox = ({ options, dispatch, activeIds, height }) => (
+	<SelectWrapper width={["100%", null]} height={["100%", `${height}px`, null]}>
 		<Box padding={[null]}>
 			{options
 				.sort((a, b) => b.total - a.total)

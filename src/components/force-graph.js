@@ -12,7 +12,6 @@ import { select } from "d3-selection"
 import { max } from "d3-array"
 import { scaleLinear } from "d3-scale"
 import { drag } from "d3-drag"
-// import { zoom } from "d3-zoom"
 
 import pointInPolygon from "point-in-polygon"
 
@@ -34,9 +33,14 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 	/**
 	 *  Assignments to the 'links' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect  react-hooks/exhaustive-deps
 	 */
+	// eslint-disable-next-line
 	let links = []
 
-	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 80])
+	const scale = scaleLinear([0, max(data.map((el) => el.total))], [50, 80])
+	const fontScale = scaleLinear(
+		[0, max(data.map((el) => el.title.length))],
+		[18, 12]
+	)
 
 	const simulation = forceSimulation(data)
 		.force("charge", forceManyBody().strength(20))
@@ -99,16 +103,16 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.append("xhtml:div")
 			.style("color", colours.white)
 			.style("text-align", "center")
+			.style("font-size", (d) => `${fontScale(d.title.length)}px`)
 			.attr("class", "label")
 			.html((d) => d.title)
 
 		if (activeIds.length > 1) {
 			for (const node of activeNodes) {
 				const targets = activeNodes
-					.map((d, i) =>
-						d !== node && i % 2 === 0 ? { source: node, target: d } : null
-					)
+					.map((d) => (d !== node ? { source: node, target: d } : null))
 					.filter(Boolean)
+					.filter((d) => activeNodes[0].title === d.source.title)
 
 				// eslint-disable-next-line
 				links = [...links, ...targets]
@@ -120,6 +124,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				.enter()
 				.append("g")
 				.attr("class", "link")
+				.lower()
 
 			link
 				.append("line")
@@ -170,6 +175,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				.enter()
 				.append("g")
 				.attr("class", "intersection")
+				.lower()
 
 			intersection
 				.append("line")
@@ -284,20 +290,31 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			})
 			.alphaTarget(0.5)
 			.restart()
-	}, [simulation, data, activeIds])
+	}, [simulation, data, activeIds, activeNodes, dispatch, links, scale])
 
 	useEffect(() => {
-		const nodes = select("#force-graph").selectAll(".node")
-
-		nodes
+		select("#force-graph")
+			.selectAll(".node")
 			.select("circle")
 			.attr("fill", colours.dark[1])
 			.filter((d) => activeIds.includes(d.id))
 			.attr("fill", colours.orange)
 
-		nodes.select("foreignObject").filter((d) => activeIds.includes(d.id))
+		// console.log(links)
 
-		select("#force-graph").selectAll(".link")
+		// select("#force-graph")
+		// 	.selectAll(".link")
+		// 	.filter((d) => !activeIds.includes(d.source.id))
+		// 	.remove()
+
+		// select("#force-graph")
+		// 	.selectAll(".intersection")
+		// 	.filter((d) => !activeIds.includes(d.id))
+		// 	.remove()
+
+		// if (activeIds.length < 2) select("#force-graph").selectAll(".link").remove()
+		// if (activeIds.length < 3)
+		// 	select("#force-graph").selectAll(".intersection").remove()
 	}, [activeIds])
 
 	return (
