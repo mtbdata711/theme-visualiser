@@ -12,7 +12,6 @@ import { select } from "d3-selection"
 import { max } from "d3-array"
 import { scaleLinear } from "d3-scale"
 import { drag } from "d3-drag"
-
 import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
@@ -104,11 +103,37 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			)
 			.stop()
 
-		const nodes = select("#force-graph").selectAll(".node").data(data).join("g")
-
-		nodes
+		const nodes = select("#force-graph")
+			.selectAll(".node")
+			.data(data)
+			.join("g")
 			.attr("class", "node")
 			.attr("id", (d) => d.id)
+
+		nodes
+			.append("circle")
+			.attr("r", (d) => scale(d.total))
+			.attr("class", "circle")
+			.attr("fill", colours.dark[1])
+			.attr("stroke", colours.white)
+			.attr("stroke-width", 2)
+			.attr("stroke-opacity", 0.2)
+
+		nodes
+			.append("foreignObject")
+			.attr("id", (d) => d.id)
+			.attr("x", -40)
+			.attr("y", -10)
+			.attr("width", 80)
+			.attr("height", 60)
+			.append("xhtml:div")
+			.style("color", colours.white)
+			.style("text-align", "center")
+			.style("font-size", (d) => `${fontScale(d.title.length)}px`)
+			.attr("class", "label")
+			.html((d) => d.title)
+
+		nodes
 			.on("mouseover", (event, d) => {
 				select(".tooltip-wrapper")
 					.style("visibility", "visible")
@@ -135,29 +160,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			})
 
 		nodes
-			.append("circle")
-			.attr("r", (d) => scale(d.total))
-			.attr("class", "circle")
-			.attr("fill", colours.dark[1])
-			.attr("stroke", colours.white)
-			.attr("stroke-width", 2)
-			.attr("stroke-opacity", 0.3)
-
-		nodes
-			.append("foreignObject")
-			.attr("id", (d) => d.id)
-			.attr("x", -40)
-			.attr("y", -10)
-			.attr("width", 80)
-			.attr("height", 60)
-			.append("xhtml:div")
-			.style("color", colours.white)
-			.style("text-align", "center")
-			.style("font-size", (d) => `${fontScale(d.title.length)}px`)
-			.attr("class", "label")
-			.html((d) => d.title)
-
-		nodes
 			.filter((d) => activeNodes.some((el) => el.id === d.id))
 			.selectAll("circle")
 			.attr("fill", colours.orange)
@@ -167,6 +169,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.data(links)
 			.join("g")
 			.attr("class", "link")
+			.lower()
 
 		link
 			.append("line")
@@ -175,6 +178,12 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.attr("stroke", colours.orange)
 
 		link
+			.append("a")
+			.attr(
+				"xlink:href",
+				(d) =>
+					`https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`
+			)
 			.append("circle")
 			.attr("class", "button")
 			.attr("r", 12)
@@ -203,11 +212,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(event.target).attr("stroke", colours.dark[1])
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			})
-		// .on(
-		// 	"click",
-		// 	(_, d) =>
-		// 		(window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${d.source.title}%C2%A0&%C2%A0${d.target.title}`)
-		// )
 
 		link.exit().remove()
 
@@ -216,6 +220,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.data(links)
 			.join("g")
 			.attr("class", "intersection")
+			.lower()
 
 		intersection
 			.append("line")
@@ -224,6 +229,11 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.attr("stroke", colours.orange)
 
 		intersection
+			.append("a")
+			.attr("xlink:href", () => {
+				const [n1, n2, n3] = activeNodes
+				return `https://graduateshowcase.arts.ac.uk/projects?_q=${n1?.title}%C2%A0&%C2%A0${n2?.title}%C2%A0&%C2%A0${n3?.title}`
+			})
 			.append("polygon")
 			.attr("class", "triangle")
 			.attr("points", "-15,-15 15,-15 0,10")
@@ -256,10 +266,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(event.target).attr("stroke", colours.dark[1])
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			})
-		// .on("click", () => {
-		// 	const [n1, n2, n3] = activeNodes
-		// 	window.location.href = `https://graduateshowcase.arts.ac.uk/projects?_q=${n1.title}%C2%A0&%C2%A0${n2.title}%C2%A0&%C2%A0${n3.title}`
-		// })
 
 		simulation
 			.on("tick", () => {
