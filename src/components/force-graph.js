@@ -55,6 +55,19 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		return links
 	}, [activeNodes])
 
+	const intersections = useMemo(() => {
+		let intersections = []
+
+		if (links.length === 3) {
+			for (let { source, target } of links) {
+				const entry = data.find((el) => el.id === source)
+				intersections.push({ source, target, entry })
+			}
+		}
+
+		return intersections
+	}, [links, data])
+
 	useEffect(() => {
 		const simulation = forceSimulation(data)
 			.force("charge", forceManyBody().strength(15))
@@ -217,7 +230,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 
 		const intersection = select("#force-graph")
 			.selectAll(".intersection")
-			.data(links)
+			.data(intersections)
 			.join("g")
 			.attr("class", "intersection")
 			.lower()
@@ -231,7 +244,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		intersection
 			.append("a")
 			.attr("xlink:href", () => {
-				const [n1, n2, n3] = activeNodes
+				const [n1, n2, n3] = intersections.map((el) => el.entry)
 				return `https://graduateshowcase.arts.ac.uk/projects?_q=${n1?.title}%C2%A0&%C2%A0${n2?.title}%C2%A0&%C2%A0${n3?.title}`
 			})
 			.append("polygon")
@@ -240,9 +253,9 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.attr("fill", colours.orange)
 			.attr("stroke", colours.dark[1])
 			.attr("stroke-width", 3)
-			.on("mouseover", (event) => {
+			.on("mouseover", (event, d) => {
 				select(event.target).attr("stroke", colours.white)
-				const [n1, n2, n3] = activeNodes
+				const [n1, n2, n3] = intersections.map((el) => el.entry)
 
 				select(".tooltip-wrapper")
 					.style("visibility", "visible")
@@ -250,10 +263,10 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 					.style("left", `${event.clientX + 10}px`)
 				select(".tooltip-type").text("intersection")
 				select(".tooltip-title").text(
-					`${n1.title}, ${n2.title} and ${n3.title}`
+					`${n1?.title}, ${n2?.title} and ${n3?.title}`
 				)
 				select(".tooltip-label").text(
-					`${n1.total + n2.total + n3.total} projects`
+					`${n1?.total + n2?.total + n3?.total} projects`
 				)
 				select(".tooltip-cta").text("click to explore this intersection")
 			})
@@ -284,29 +297,37 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 					return `translate(${x}, ${y})`
 				})
 
-				if (activeNodes.length > 2) {
-					const intersection = select("#force-graph").selectAll(".intersection")
-					const polygon = links.map((v) => [v.source.x, v.source.y])
+				const intersection = select("#force-graph").selectAll(".intersection")
+				const polygon = links.map((v) => [v.source.x, v.source.y])
 
-					intersection
-						.select("line")
-						.attr("x1", (d) => d.source.x)
-						.attr("x2", () => triangleCentroid(polygon).x)
-						.attr("y1", (d) => d.source.y)
-						.attr("y2", () => triangleCentroid(polygon).y)
+				intersection
+					.select("line")
+					.attr("x1", (d) => d.source.x)
+					.attr("x2", () => triangleCentroid(polygon).x)
+					.attr("y1", (d) => d.source.y)
+					.attr("y2", () => triangleCentroid(polygon).y)
 
-					intersection.select("polygon").attr("transform", () => {
-						const { x, y } = triangleCentroid(polygon)
-						return `translate(${x}, ${y})`
-					})
-				}
+				intersection.select("polygon").attr("transform", () => {
+					const { x, y } = triangleCentroid(polygon)
+					return `translate(${x}, ${y})`
+				})
 			})
 			.restart()
 
 		return () => {
 			simulation.stop()
 		}
-	}, [data, activeNodes, links, dispatch, fontScale, width, height, scale])
+	}, [
+		data,
+		activeNodes,
+		links,
+		intersections,
+		dispatch,
+		fontScale,
+		width,
+		height,
+		scale,
+	])
 
 	return (
 		<GraphWrapper width={width} height={height}>
@@ -314,7 +335,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				// onClick={(evt) => {
 				// 	const id = evt.target.id
 				// 	if (!Number.isNaN(Number(id)) && activeNodes.length < 3) {
-				// 		// dispatch(Number(id))
+				// 		dispatch(Number(id))
 				// 		console.log(select(evt.target))
 				// 	}
 				// }}

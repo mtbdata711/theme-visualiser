@@ -66,36 +66,37 @@ export const App = () => {
 
 			<Main>
 				<Box padding={[2, 3, 4]}>
-					<Title fontSize={[1, 2, 3]}>Graduate Show</Title>
-					<Title fontSize={[3, 4, 5]}>Theme Visualizer</Title>
+					<Title as="h2" fontSize={[1, 2, 3]}>
+						Graduate Show
+					</Title>
+					<Title as="h1" fontSize={[3, 4, 5]}>
+						Theme Visualizer
+					</Title>
 				</Box>
 
-				<Flex
-					padding={[2, 3, 4]}
-					flexDirection={["column-reverse", "row"]}
-					gap={[2, 3, 4]}
-				>
-					{loading && <LoadingBox />}
-					{!loading && !error && (
-						<>
-							<SelectBox
-								options={data}
-								dispatch={dispatch}
-								activeIds={activeIds}
-								height={height}
-							/>
+				{loading && <LoadingBox />}
+				{!loading && !error && (
+					<Flex
+						padding={[2, 3, 4]}
+						flexDirection={["column-reverse", "row"]}
+						gap={[2, 3, 4]}
+					>
+						<SelectBox
+							options={data}
+							dispatch={dispatch}
+							activeIds={activeIds}
+							height={height}
+						/>
 
-							<ForceGraph
-								width={windowSize.width >= size.laptop ? width - 240 : width}
-								height={height}
-								data={data}
-								dispatch={dispatch}
-								activeIds={activeIds}
-							/>
-						</>
-					)}
-				</Flex>
-
+						<ForceGraph
+							width={windowSize.width >= size.laptop ? width - 240 : width}
+							height={windowSize.width >= size.laptop ? height : 0.8 * height}
+							data={data}
+							dispatch={dispatch}
+							activeIds={activeIds}
+						/>
+					</Flex>
+				)}
 				<Tooltip />
 			</Main>
 		</>

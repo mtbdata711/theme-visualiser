@@ -77,8 +77,10 @@ const StyledFlex = styled.div`
 	}
 `
 
-export const Title = ({ children, ...styles }) => (
-	<StyledTitle styles={styles}>{children}</StyledTitle>
+export const Title = ({ as, children, ...styles }) => (
+	<StyledTitle as={as} styles={styles}>
+		{children}
+	</StyledTitle>
 )
 
 const StyledTitle = styled.h1`
