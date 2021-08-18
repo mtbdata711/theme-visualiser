@@ -29,10 +29,10 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		[data, activeIds]
 	)
 
-	const scale = scaleLinear([0, max(data.map((el) => el.total))], [50, 80])
+	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 70])
 	const fontScale = scaleLinear(
 		[0, max(data.map((el) => el.title.length))],
-		[18, 12]
+		[18, 10]
 	)
 
 	const links = useMemo(() => {
@@ -56,7 +56,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 	}, [activeNodes])
 
 	const intersections = useMemo(() => {
-		let intersections = []
+		const intersections = []
 
 		if (links.length === 3) {
 			for (let { source, target } of links) {
@@ -125,6 +125,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 
 		nodes
 			.append("circle")
+			.attr("id", (d) => d.id)
 			.attr("r", (d) => scale(d.total))
 			.attr("class", "circle")
 			.attr("fill", colours.dark[1])
@@ -134,12 +135,12 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 
 		nodes
 			.append("foreignObject")
-			.attr("id", (d) => d.id)
 			.attr("x", -40)
 			.attr("y", -10)
 			.attr("width", 80)
 			.attr("height", 60)
 			.append("xhtml:div")
+			.attr("id", (d) => d.id)
 			.style("color", colours.white)
 			.style("text-align", "center")
 			.style("font-size", (d) => `${fontScale(d.title.length)}px`)
@@ -157,7 +158,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(".tooltip-label").text(`${d.total} projects`)
 				select(".tooltip-cta").text("click to select the theme")
 			})
-			.on("mousemove", (event, d) => {
+			.on("mousemove", (event) => {
 				select(".tooltip-wrapper")
 					.style("top", `${event.clientY + 10}px`)
 					.style("left", `${event.clientX + 10}px`)
@@ -166,11 +167,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			)
 			.call(dragFunction(simulation, drag))
-			.on("click", function () {
-				dispatch({
-					id: Number(this.id),
-				})
-			})
 
 		nodes
 			.filter((d) => activeNodes.some((el) => el.id === d.id))
@@ -253,7 +249,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 			.attr("fill", colours.orange)
 			.attr("stroke", colours.dark[1])
 			.attr("stroke-width", 3)
-			.on("mouseover", (event, d) => {
+			.on("mouseover", (event) => {
 				select(event.target).attr("stroke", colours.white)
 				const [n1, n2, n3] = intersections.map((el) => el.entry)
 
@@ -279,6 +275,8 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(event.target).attr("stroke", colours.dark[1])
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			})
+
+		intersection.exit().remove()
 
 		simulation
 			.on("tick", () => {
@@ -323,22 +321,20 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		links,
 		intersections,
 		dispatch,
+		scale,
 		fontScale,
 		width,
 		height,
-		scale,
 	])
 
 	return (
 		<GraphWrapper width={width} height={height}>
 			<svg
-				// onClick={(evt) => {
-				// 	const id = evt.target.id
-				// 	if (!Number.isNaN(Number(id)) && activeNodes.length < 3) {
-				// 		dispatch(Number(id))
-				// 		console.log(select(evt.target))
-				// 	}
-				// }}
+				onClick={(event) =>
+					!Number.isNaN(Number(event.target.id)) && activeNodes.length < 3
+						? dispatch({ id: Number(event.target.id) })
+						: null
+				}
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}

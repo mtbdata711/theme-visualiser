@@ -142,6 +142,10 @@ const StyledGraphWrapper = styled.div`
 	.button:hover {
 		cursor: pointer;
 	}
+
+	& svg .node:active {
+		cursor: grabbing;
+	}
 `
 
 export const Label = ({ children, className, ...styles }) => (
