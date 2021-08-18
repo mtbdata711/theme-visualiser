@@ -298,13 +298,13 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				})
 
 				const intersection = select("#force-graph").selectAll(".intersection")
-				const polygon = links.map((v) => [v.source.x, v.source.y])
+				const polygon = links.map((d) => [d.source.x, d.source.y])
 
 				intersection
 					.select("line")
-					.attr("x1", (d) => d.source.x)
+					.attr("x1", (d) => d.entry.x)
 					.attr("x2", () => triangleCentroid(polygon).x)
-					.attr("y1", (d) => d.source.y)
+					.attr("y1", (d) => d.entry.y)
 					.attr("y2", () => triangleCentroid(polygon).y)
 
 				intersection.select("polygon").attr("transform", () => {
