@@ -21,7 +21,12 @@ export const SelectBox = ({ options, dispatch, activeIds, height }) => (
 			{options
 				.sort((a, b) => b.total - a.total)
 				.map((option) => (
-					<Label htmlFor={option.id} key={option.id} padding=".2rem 0">
+					<Label
+						htmlFor={option.id}
+						key={option.id}
+						padding=".2rem 0"
+						disabled={activeIds.length > 2 && !activeIds.includes(option.id)}
+					>
 						<input
 							type="checkbox"
 							className="checkbox"
@@ -31,10 +36,10 @@ export const SelectBox = ({ options, dispatch, activeIds, height }) => (
 							checked={activeIds.includes(option.id)}
 							onChange={(event) =>
 								dispatch({
-									target: event.target,
 									id: Number(event.target.id),
 								})
 							}
+							disabled={activeIds.length > 2 && !activeIds.includes(option.id)}
 						/>
 						<span className="checkbox-label">{`${option.title} (${option.total})`}</span>
 					</Label>

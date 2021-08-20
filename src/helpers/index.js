@@ -1,6 +1,5 @@
 /**
- * Reducer method that takes the ID of the selected node (theme)
- * and either adds or removes the ID to a state array.
+ * Reducer method that takes the ID of the selected node (theme) and either adds or removes the ID to a state array.
  * @param {Array} ids
  * @param {Object} action
  */
@@ -19,10 +18,7 @@ export const reducer = (ids, action) => {
 }
 
 /**
- * Distance method to calculate the position of the intersection-
- * buttons in the force layout graph. It takes two vectors, both
- * holding (x, y) coördinates. It returns the vector of the
- * point halfway between the two given vectors.
+ * Distance method to calculate the position of the intersection-buttons in the force layout graph. It takes two vectors, both holding (x, y) coördinates. It returns the vector of the point halfway between the two given vectors.
  * @param {Object} v1
  * @param {Object} v2
  */
@@ -111,6 +107,11 @@ export const closestPointOnPolygon = (point, poly) => {
 	return closestPointOnPoly
 }
 
+/**
+ * Drag function that allows the nodes in the forcegraph to be dragged and dropped.
+ * @param {*} simulation
+ * @param {*} drag
+ */
 export const dragFunction = (simulation, drag) => {
 	const dragstarted = (event, d) => {
 		if (!event.active) simulation.alphaTarget(1).restart()
@@ -135,6 +136,12 @@ export const dragFunction = (simulation, drag) => {
 		.on("end", dragended)
 }
 
+/**
+ * Helper function that calculates the margins of the SVG element relative to the screensize (width)
+ * @param {*} width
+ * @param {*} breakpoints
+ * @param {*} margins
+ */
 export const calculateMargins = (width, breakpoints, margins) => {
 	const index = breakpoints.findIndex((bp) => bp >= width) - 1
 

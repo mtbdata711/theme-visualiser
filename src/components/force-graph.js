@@ -5,24 +5,20 @@ import {
 	forceCenter,
 	forceCollide,
 	forceLink,
-	forceX,
-	forceY,
 } from "d3-force"
 import { select } from "d3-selection"
 import { max } from "d3-array"
 import { scaleLinear } from "d3-scale"
 import { drag } from "d3-drag"
-import pointInPolygon from "point-in-polygon"
 
 import { GraphWrapper } from "./index"
-import {
-	halfDistance,
-	triangleCentroid,
-	closestPointOnPolygon,
-	dragFunction,
-} from "../helpers"
-import { colours } from "../styles/index"
+import { halfDistance, triangleCentroid, dragFunction } from "../helpers"
+import { colours } from "../styles"
 
+/**
+ * The ForceGraph component renders the d3 force graph.
+ * @param {*} param0
+ */
 export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 	const activeNodes = useMemo(
 		() => activeIds.map((id) => data.find((el) => el.id === id)),
@@ -68,8 +64,8 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		return intersections
 	}, [links, data])
 
-	useEffect(() => {
-		const simulation = forceSimulation(data)
+	const simulation = useMemo(() => {
+		return forceSimulation(data)
 			.force("charge", forceManyBody().strength(15))
 			.force("center", forceCenter(width / 2, height / 2))
 			.force(
@@ -77,44 +73,50 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				forceCollide().radius((d) => scale(d.total) + 10)
 			)
 			.force(
-				"x",
-				forceX()
-					.x((d) => {
-						if (activeNodes.length > 2) {
-							const polygon = activeNodes.map((v) => [v.x, v.y])
-							const inPolygon = pointInPolygon([d.x, d.y], polygon)
-							if (inPolygon) {
-								d.inPolygon = true
-								return closestPointOnPolygon([d.x, d.y], polygon)[0]
-							} else d.inPolygon = false
-						}
-						return d.x
-					})
-					.strength((d) => (d.inPolygon ? 0.35 : 0.01))
-			)
-			.force(
-				"y",
-				forceY()
-					.y((d) => {
-						if (activeNodes.length > 2) {
-							const polygon = activeNodes.map((v) => [v.x, v.y])
-							const inPolygon = pointInPolygon([d.x, d.y], polygon)
-							if (inPolygon) {
-								d.inPolygon = true
-								return closestPointOnPolygon([d.x, d.y], polygon)[1]
-							} else d.inPolygon = false
-						}
-						return d.y
-					})
-					.strength((d) => (d.inPolygon ? 0.35 : 0.01))
-			)
-			.force(
 				"link",
 				forceLink(links)
 					.id((d) => d.id)
 					.distance(200)
 			)
-			.stop()
+			.on("tick", () => {
+				const nodes = select("#force-graph").selectAll(".node")
+				const link = select("#force-graph").selectAll(".link")
+
+				nodes.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+
+				link
+					.select("line")
+					.attr("x1", (d) => d.source.x)
+					.attr("y1", (d) => d.source.y)
+					.attr("x2", (d) => d.target.x)
+					.attr("y2", (d) => d.target.y)
+
+				link.select("circle").attr("transform", (d) => {
+					const { x, y } = halfDistance(d.source, d.target)
+					return `translate(${x}, ${y})`
+				})
+
+				const intersection = select("#force-graph").selectAll(".intersection")
+				const polygon = links.map((d) => [d.source.x, d.source.y])
+
+				if (links.length < 3) return
+
+				intersection
+					.select("line")
+					.attr("x1", (d) => d.entry.x)
+					.attr("x2", () => triangleCentroid(polygon).x)
+					.attr("y1", (d) => d.entry.y)
+					.attr("y2", () => triangleCentroid(polygon).y)
+
+				intersection.select("polygon").attr("transform", () => {
+					const { x, y } = triangleCentroid(polygon)
+					return `translate(${x}, ${y})`
+				})
+			})
+	}, [links, data, width, height, scale])
+
+	useEffect(() => {
+		select("#force-graph").selectAll(".node").remove()
 
 		const nodes = select("#force-graph")
 			.selectAll(".node")
@@ -222,7 +224,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			})
 
-		link.exit().remove()
+		// link.exit().remove()
 
 		const intersection = select("#force-graph")
 			.selectAll(".intersection")
@@ -276,42 +278,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 				select(".tooltip-wrapper").style("visibility", "hidden")
 			})
 
-		intersection.exit().remove()
-
-		simulation
-			.on("tick", () => {
-				nodes.attr("transform", (d) => `translate(${d.x}, ${d.y})`)
-				const link = select("#force-graph").selectAll(".link")
-
-				link
-					.select("line")
-					.attr("x1", (d) => d.source.x)
-					.attr("y1", (d) => d.source.y)
-					.attr("x2", (d) => d.target.x)
-					.attr("y2", (d) => d.target.y)
-
-				link.select("circle").attr("transform", (d) => {
-					const { x, y } = halfDistance(d.source, d.target)
-					return `translate(${x}, ${y})`
-				})
-
-				const intersection = select("#force-graph").selectAll(".intersection")
-				const polygon = links.map((d) => [d.source.x, d.source.y])
-
-				intersection
-					.select("line")
-					.attr("x1", (d) => d.entry.x)
-					.attr("x2", () => triangleCentroid(polygon).x)
-					.attr("y1", (d) => d.entry.y)
-					.attr("y2", () => triangleCentroid(polygon).y)
-
-				intersection.select("polygon").attr("transform", () => {
-					const { x, y } = triangleCentroid(polygon)
-					return `translate(${x}, ${y})`
-				})
-			})
-			.restart()
-
 		return () => {
 			simulation.stop()
 		}
@@ -325,16 +291,24 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		fontScale,
 		width,
 		height,
+		simulation,
 	])
 
 	return (
 		<GraphWrapper width={width} height={height}>
 			<svg
-				onClick={(event) =>
-					!Number.isNaN(Number(event.target.id)) && activeNodes.length < 3
-						? dispatch({ id: Number(event.target.id) })
-						: null
-				}
+				onClick={(event) => {
+					if (Number.isNaN(Number(event.target.id))) {
+						return
+					} else if (
+						activeIds.length === 3 &&
+						activeIds.includes(Number(event.target.id))
+					) {
+						dispatch({ id: Number(event.target.id) })
+					} else if (activeIds.length < 3) {
+						dispatch({ id: Number(event.target.id) })
+					}
+				}}
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}

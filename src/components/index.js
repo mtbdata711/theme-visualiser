@@ -1,5 +1,5 @@
 import styled from "styled-components"
-import { theme, device, colours } from "../styles/index"
+import { theme, device, colours } from "../styles"
 
 export const Header = ({ children, ...styles }) => (
 	<StyledHeader styles={styles}>{children}</StyledHeader>
@@ -148,14 +148,15 @@ const StyledGraphWrapper = styled.div`
 	}
 `
 
-export const Label = ({ children, className, ...styles }) => (
-	<StyledLabel className={className} styles={styles}>
+export const Label = ({ children, disabled, className, ...styles }) => (
+	<StyledLabel className={className} styles={styles} disabled={disabled}>
 		{children}
 	</StyledLabel>
 )
 
 const StyledLabel = styled.label`
-	color: ${() => colours.white};
+	color: ${colours.white};
+	opacity: ${(p) => (p.disabled ? 0.5 : 1.0)};
 	display: block;
 	padding: ${(p) => p.styles.padding};
 	display: flex;
