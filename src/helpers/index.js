@@ -5,13 +5,12 @@
  */
 export const reducer = (ids, action) => {
 	const type = ids.includes(action.id) ? "REMOVE" : "ADD"
-	const idx = ids.indexOf(action.id)
 
 	switch (type) {
 		case "ADD":
 			return [...ids, action.id]
 		case "REMOVE":
-			return [...ids.slice(0, idx), ...ids.slice(idx + 1)]
+			return ids.filter(id => id !== action.id)
 		default:
 			throw new Error()
 	}
