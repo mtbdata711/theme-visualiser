@@ -19,7 +19,7 @@ export const SelectBox = ({ options, dispatch, activeIds, height }) => (
 	<SelectWrapper width={["100%", null]} height={["100%", `${height}px`, null]}>
 		<Box padding={[null]}>
 			{options
-				.sort((a, b) => b.total - a.total)
+				.sort((a, b) => a.title.localeCompare(b.title))
 				.map((option) => (
 					<Label
 						htmlFor={option.id}
