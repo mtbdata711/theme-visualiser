@@ -25,6 +25,8 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		[data, activeIds]
 	)
 
+
+
 	const scale = scaleLinear([0, max(data.map((el) => el.total))], [40, 70])
 	const fontScale = scaleLinear(
 		[0, max(data.map((el) => el.title.length))],
@@ -34,6 +36,8 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 	const links = useMemo(() => {
 		const links = []
 		if (activeNodes.length <= 1) return links
+
+		console.log({activeNodes});
 
 		for (let [i, node] of activeNodes.entries()) {
 			if (activeNodes.length === 2) {
@@ -294,25 +298,33 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		simulation,
 	])
 
+	const handleClick = event => {
+		const { id, parentNode } = event.target
+		const { length } = activeIds
+		const selectedId = id ? id : parentNode.id
+		const selectedIdAsNumber = Number(selectedId)
+
+		if( ! selectedId || Number.isNaN( selectedIdAsNumber ) ){
+			return
+		}
+
+		if( length >= 3 && activeIds.includes(selectedIdAsNumber) ){
+			return dispatch( { id: selectedIdAsNumber } )
+		}
+
+		if( length < 3 ){
+			return dispatch( { id: selectedIdAsNumber } )
+		}
+	}
+
 	return (
-		<GraphWrapper width={width} height={height}>
+		<GraphWrapper width={width} height={height}> 
 			<svg
-				onClick={(event) => {
-					if (Number.isNaN(Number(event.target.id))) {
-						return
-					} else if (
-						activeIds.length === 3 &&
-						activeIds.includes(Number(event.target.id))
-					) {
-						dispatch({ id: Number(event.target.id) })
-					} else if (activeIds.length < 3) {
-						dispatch({ id: Number(event.target.id) })
-					}
-				}}
 				height={height}
 				width={width}
 				viewBox={`0 0 ${width} ${height}`}
 				id="force-graph"
+				onClick={handleClick}
 			></svg>
 		</GraphWrapper>
 	)
