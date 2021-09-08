@@ -67,10 +67,10 @@ export const App = () => {
 			<Main>
 				<Box padding={[2, 3, 4]}>
 					<Title as="h2" fontSize={[1, 2, 3]}>
-						Graduate Show
+						Graduate Showcase
 					</Title>
 					<Title as="h1" fontSize={[3, 4, 5]}>
-						Theme Visualizer
+						Theme visualiser
 					</Title>
 				</Box>
 
