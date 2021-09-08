@@ -37,8 +37,6 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		const links = []
 		if (activeNodes.length <= 1) return links
 
-		console.log({activeNodes});
-
 		for (let [i, node] of activeNodes.entries()) {
 			if (activeNodes.length === 2) {
 				links.push({ source: node.id, target: activeNodes[i + 1].id })
@@ -302,7 +300,7 @@ export const ForceGraph = ({ width, height, data, dispatch, activeIds }) => {
 		const { id, parentNode } = event.target
 		const { length } = activeIds
 		const selectedId = id ? id : parentNode.id
-		const selectedIdAsNumber = Number(selectedId)
+		const selectedIdAsNumber = parseInt(selectedId, 10);
 
 		if( ! selectedId || Number.isNaN( selectedIdAsNumber ) ){
 			return
